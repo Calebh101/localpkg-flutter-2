@@ -13,3 +13,11 @@ dependencies:
             url: https://github.com/Calebh101/localpkg-flutter-2.git
             ref: main # 'main' for latest commit, 'dev' for latest development commit (may not always be updated), or a specific commit hash for a specific commit
 ```
+
+## How to use
+
+For using the global analysis template, add this to your `analysis_options.yaml`:
+
+```yaml
+include: package:localpkg/lints/default.yaml
+```
