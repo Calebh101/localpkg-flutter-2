@@ -13,7 +13,6 @@ dependencies:
     sdk: flutter
   path_provider: ^2.1.5
   readmore: ^3.0.0
-  share_plus: ^11.1.0
   shared_preferences: ^2.5.3
   url_launcher: ^6.3.2
 

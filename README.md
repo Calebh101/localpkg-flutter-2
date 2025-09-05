@@ -21,3 +21,7 @@ For using the global analysis template, add this to your `analysis_options.yaml`
 ```yaml
 include: package:localpkg/lints/default.yaml
 ```
+
+## Notes
+
+`logger.dart` has been omitted in favor of the upcoming `styled_logger` package.

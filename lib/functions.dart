@@ -1,35 +1,56 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:localpkg/dialogue.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:path_provider/path_provider.dart';
 
+/// Mode used to format time in [TimeFormatter].
 enum FormatTimeMode {
+  /// `hh:mm:ss`
   hhmmss,
+
+  /// `hh:mm`
   hhmm,
+
+  /// `mm:ss`
   mmss,
 }
 
+/// Mode used to format duration in [TimeFormatter].
 enum FormatDurationMode {
+  /// Hour will always be present.
   hourRequired,
+
+  /// Hour might not be present.
   hourOptional,
 }
 
-enum ColorType {
-  theme,
-  primary,
-  secondary,
+/// Determines what's used to decide the size factor.
+enum SizeFactorMode {
+  /// Use the width.
+  byWidth,
+
+  /// Use the height.
+  byHeight,
+
+
+  /// Whichever's smaller.
+  auto,
 }
 
+/// Determines what mode is used in [SimpleNavigator].
+enum NavigatorMode {
+  /// Uses [Navigator.push].
+  push,
+  
+  /// Uses [Navigator.pushReplacement].
+  pushReplacement,
+}
+
+/// Formats times, dates, and durations.
 class TimeFormatter {
-  static String formatTime(Duration input, {
+  /// Formats a [DateTime].
+  static String formatTime(DateTime time, {
     FormatTimeMode output = FormatTimeMode.hhmm,
     bool army = false,
   }) {
-    int ms = input.inMilliseconds;
-    DateTime time = DateTime.fromMillisecondsSinceEpoch(ms);
     int hour = time.hour;
     int minute = time.minute;
     int second = time.second;
@@ -45,6 +66,7 @@ class TimeFormatter {
     return formatted;
   }
 
+  /// Formats a [Duration].
   static String formatDuration(Duration duration, {FormatDurationMode mode = FormatDurationMode.hourRequired}) {
     int ms = duration.inMilliseconds;
     int hours = (ms ~/ 3600000);
@@ -62,39 +84,24 @@ class TimeFormatter {
   }
 }
 
-bool isWhole(num number) {
-  return number % 1 == 0;
-}
+/// Extension for manipulating numbers.
+extension NumberManager on num {
+  /// Gets if the number is a whole number.
+  bool isWhole() => this % 1 == 0;
 
-String cleanNumber(num number) {
-  if (number is double && isWhole(number)) {
-    return "${number.toInt()}";
-  } else {
-    return "$number";
-  }
-}
-
-
-Color getColor({required BuildContext context, required ColorType type, Brightness? brightness}) {
-  if (type == ColorType.theme) {
-    brightness ??= MediaQuery.of(context).platformBrightness;
-    if (brightness == Brightness.dark) {
-      return Colors.white;
-    } else if (brightness == Brightness.light) {
-      return Colors.black;
+  /// Returns a clean number. If this is a double but is a whole number, it is converted to an integer.
+  String clean() {
+    if (this is double && isWhole()) {
+      return "${toInt()}";
     } else {
-      throw Exception("Unknown brightness: $brightness");
+      return "$this";
     }
-  } else if (type == ColorType.primary) {
-    return Theme.of(context).primaryColor;
-  } else if (type == ColorType.secondary) {
-    return Theme.of(context).colorScheme.secondary;
-  } else {
-    throw Exception("Unknown ColorType: $type");
   }
 }
 
+/// Manages opening and manipulating URLs.
 class UrlManager {
+  /// Tries to launch the specified [Uri].
   static Future<void> openUrl({required Uri url, LaunchMode launchMode = LaunchMode.externalApplication}) async {
     try {
       if (await canLaunchUrl(url)) {
@@ -110,206 +117,218 @@ class UrlManager {
     }
   }
 
+  /// Adds a prefix like `protocol://`.
   static String addHttpPrefix(String url, {String defaultPrefix = "http"}) {
-    if (!url.startsWith('http://') && !url.startsWith('https://') && !url.startsWith('ws://') && !url.startsWith('wss://')) {
-      return '$defaultPrefix://$url';
-    }
+    if (!url.startsWith('http://') && !url.startsWith('https://') && !url.startsWith('ws://') && !url.startsWith('wss://')) return '$defaultPrefix://$url';
     return url;
   }
 
-  static String removeHttpPrefix(String url, {bool removeWebsocket = true}) {
-    url = url.replaceAll("http://", "");
-    url = url.replaceAll("https://", "");
-
-    if (removeWebsocket) {
-      url = url.replaceAll("ws://", "");
-      url = url.replaceAll("wss://", "");
-    }
-
+  /// Removes `http://` and `https://`, and optionally WebSocket and other protocols.
+  static String removeHttpPrefix(String url, {bool removeWebsocket = true, List<String> otherProtocols = const []}) {
+    List<String> protocols = ["http", "https", if (removeWebsocket) ...["ws", "wss"], ...otherProtocols];
+    for (String protocol in protocols) url.replaceFirst("$protocol://", "");
     return url;
   }
 }
 
-String toSentenceCase(String input) {
-  if (input.isEmpty) {
-    return input;
+/// Manages capitalizations.
+extension CaseManager on String {
+  /// Capitalizes the first character of the string.
+  String toSentenceCase() {
+    if (isEmpty) return this;
+    return [this[0].toUpperCase(), substring(1)].join("");
   }
-  return input[0].toUpperCase() + input.substring(1);
-}
 
-String toTitleCase(String input) {
-  if (input.isEmpty) return input;
+  /// Capitalizes the first letter of every word.
+  String toTitleCase() {
+    return capitalizeByDelim(this, " ");
+  }
 
-  return input
-      .split(' ')
-      .map((word) => word.isNotEmpty
-          ? '${word[0].toUpperCase()}${word.substring(1).toLowerCase()}'
-          : word)
-      .join(' ');
-}
+  /// Capitalizes the first letter of every word, based on a delimiter ([delim]).
+  static String capitalizeByDelim(String input, Pattern delim) {
+    if (input.isEmpty) return input;
 
-@Deprecated("Use shareText instead.")
-Future<bool> shareTextFile(bool allowShareContent, String subject, String content, String extension) async {
-  try {
-    final directory = await getApplicationDocumentsDirectory();
-    final file = File('${directory.path}/data.$extension');
-    final file2 = await file.writeAsString(content);
-    await Share.shareXFiles([XFile(file2.path)], text: subject);
-    return true;
-  } catch (e) {
-    if (allowShareContent) {
-      print("Unable to Share.shareXFiles: falling back on Share.share: $e");
-      try {
-        await Share.share(content, subject: subject);
-        return true;
-      } catch (e2) {
-        print("Unable to Share.share: $e2");
-        return false;
-      }
-    } else {
-      print("Unable to Share.share: action not allowed");
-      return false;
-    }
+    return input.split(delim).map((x) => x.trim()).map((word) => word.isNotEmpty
+      ? '${word[0].toUpperCase()}${word.substring(1).toLowerCase()}'
+      : word).join(' ');
   }
 }
 
-Future<bool> shareText({required String content, required String filename, bool allowTextShare = true, String? subject}) async {
-  try {
-    final directory = await getApplicationDocumentsDirectory();
-    final file = File('${directory.path}/$filename');
-    final file2 = await file.writeAsString(content);
-    await Share.shareXFiles([XFile(file2.path)], text: subject);
-    return true;
-  } catch (e) {
-    if (allowTextShare) {
-      print("Unable to Share.shareXFiles: falling back on Share.share: $e");
-      try {
-        await Share.share(content, subject: subject);
-        return true;
-      } catch (e2) {
-        print("Unable to Share.share: $e2");
-        return false;
-      }
-    } else {
-      print("Unable to Share.share: action not allowed");
-      return false;
-    }
-  }
-}
+/// Manages size-related things.
+class SizeManager {
+  SizeManager._();
 
-Future<bool> sharePlainText({required String content, String? subject}) async {
-  try {
-    await Share.share(content, subject: subject);
-    return true;
-  } catch (e) {
-    print("Unable to Share.share: $e");
-    return false;
-  }
-}
-
-double getSizeFactor({
-  required BuildContext context,
-  int mode = 1,
-  double maxSize = 3,
-  bool forceUseWidth = true,
-}) {
-  double size;
-  Size screenSize = MediaQuery.of(context).size;
-
-  if ((screenSize.width > screenSize.height) && !forceUseWidth) {
-    size = screenSize.height;
-  } else {
-    size = screenSize.width;
-  }
-
-  switch (mode) {
-    case 1: // width
-      size = screenSize.width;
-      break;
-    case 2: // height
-      size = screenSize.height;
-      break;
-    case 3: // auto
-      if (screenSize.width > screenSize.height) {
-        size = screenSize.height;
-      } else {
-        size = screenSize.width;
-      }
-      break;
-  }
-
-  size = size * 0.003;
-  size = size > maxSize ? maxSize : size;
-  return size;
-}
-
-int getCrossAxisCount({required BuildContext context, int factor = 180}) {
-  double screenWidth = MediaQuery.of(context).size.width;
-  int crossAxisCount = (screenWidth / factor).floor();
-  crossAxisCount = crossAxisCount < 1 ? 1 : crossAxisCount;
-  return crossAxisCount;
-}
-
-void navigate({required BuildContext context, required Widget page,
-    /// mode 1: push
-    /// mode 2: push and replace
-    int mode = 1,
+  /// Get the factor of size based on the screen size.
+  static double getSizeFactor({
+    required BuildContext context,
+    SizeFactorMode mode = SizeFactorMode.byWidth,
+    double maxSize = 3,
+    bool forceUseWidth = true,
   }) {
-  if (mode == 1) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => page),
-    );
-  } else if (mode == 2) {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => page),
-    );
-  } else {
-    throw Exception("Invalid mode in navigate: $mode");
+    double size;
+    Size screenSize = MediaQuery.of(context).size;
+
+    if ((screenSize.width > screenSize.height) && !forceUseWidth) {
+      size = screenSize.height;
+    } else {
+      size = screenSize.width;
+    }
+
+    switch (mode) {
+      case SizeFactorMode.byWidth: // width
+        size = screenSize.width;
+        break;
+      case SizeFactorMode.byHeight: // height
+        size = screenSize.height;
+        break;
+      case SizeFactorMode.auto: // auto
+        if (screenSize.width > screenSize.height) {
+          size = screenSize.height;
+        } else {
+          size = screenSize.width;
+        }
+        break;
+    }
+
+    size = size * 0.003;
+    size = size > maxSize ? maxSize : size;
+    return size;
+  }
+
+  /// Get how many items to display in a row of a grid based on the size.
+  static int getCrossAxisCount({required BuildContext context, int factor = 180}) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    int crossAxisCount = (screenWidth / factor).floor();
+    crossAxisCount = crossAxisCount < 1 ? 1 : crossAxisCount;
+    return crossAxisCount;
   }
 }
 
-void support(context) {
-  openUrlConf(context, Uri.parse("$host/$supportEndpoint"));
+/// Manages simple navigation functions.
+class SimpleNavigator {
+  SimpleNavigator._();
+
+  /// Navigates to the specified page.
+  static void navigate({required BuildContext context, required Widget page, NavigatorMode mode = NavigatorMode.push}) {
+    switch (mode) {
+      case NavigatorMode.push:
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => page),
+        );
+        break;
+      case NavigatorMode.pushReplacement:
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => page),
+        );
+        break;
+    }
+  }
 }
 
-void feedback(context) {
-  openUrlConf(context, Uri.parse("$host/$feedbackEndpoint"));
+/// Extension to format [StackTrace]s.
+extension StackTraceFormatter on StackTrace {
+  static String _format(String input, {int? end}) {
+    end ??= 16;
+    assert(end > 0, "end must be greater than 0.");
+    List<String> lines = input.split("\n");
+    bool expands = false;
+    if (lines.length > end) expands = true;
+    if (lines.length < end) end = lines.length;
+    return [...lines.sublist(0, end), if (expands) "And ${lines.length - end} more..."].join("\n");
+  }
+
+  /// Formats [StackTrace]s
+  String format({int? end}) {
+    return _format(toString(), end: end);
+  }
 }
 
-double parseVersion(String input, {int base = 2}) {
-  int letter = 0;
-  RegExp regex = RegExp(r'^[a-zA-Z0-9.]*$');
-  String letters = input.replaceAll(RegExp(r'[^a-zA-Z]'), '');
+/// Manages versions and version parsing.
+class Version implements Comparable<Version> {
+  /// `a` in `a.b.c`
+  final int major;
 
-  if (letters.length == 1) {
-    letter = letters[0].codeUnitAt(0) - 65;
+  /// `b` in `a.b.c`
+  final int intermediate;
+
+  /// `c` in `a.b.c`
+  final int minor;
+
+  /// Letter identifier.
+  final int patch;
+
+  /// Optional revision.
+  final int release;
+
+  /// [major], [intermediate], and [minor] are required. [letter] and [release] have defaults.
+  Version(this.major, this.intermediate, this.minor, [String letter = "A", this.release = 0]) : patch = letter.codeUnitAt(0), assert(release >= 0, "Release cannot be negative.");
+
+  /// Returns the raw version string. [release] is only included if it is non-zero.
+  @override
+  String toString() {
+    String main = "${[major, intermediate, minor].join(".")}${String.fromCharCode(patch)}";
+    String releaseString = "R$release";
+    return [main, if (release > 0) releaseString].join("-");
   }
 
-  if (!regex.hasMatch(input)) {
-    throw Exception("Invalid version (not alphanumeric with periods): $input");
+  @override
+  int compareTo(Version other) {
+    if (major != other.major) return major.compareTo(other.major);
+    if (intermediate != other.intermediate) return intermediate.compareTo(other.intermediate);
+    if (minor != other.minor) return minor.compareTo(other.minor);
+    if (patch != other.patch) return patch.compareTo(other.patch);
+    return release.compareTo(other.release);
   }
 
-  String inputS = input.replaceAll(RegExp(r'[^0-9.]'), '');
-  String code = "$inputS${".${letter.toString().padLeft(base, '0')}"}";
+  @override
+  int get hashCode => major.hashCode ^ intermediate.hashCode ^ minor.hashCode ^ patch.hashCode ^ release.hashCode;
 
-  List<String> segments = code.split('.');
-  String result = '';
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
 
-  for (var segment in segments) {
-    result += segment.toString().padLeft(base, '0');
+    return other is Version &&
+      major == other.major &&
+      intermediate == other.intermediate &&
+      minor == other.minor &&
+      patch == other.patch &&
+      release == other.release;
   }
 
-  print("parsed version $input to $result");
-  return double.tryParse(result) ?? 0;
-}
+  /// This [Version] is greater than the other [Version].
+  bool operator >(Version other) => compareTo(other) > 0;
 
-bool isNewerVersion({required String current, required String latest}) {
-  double currentN = parseVersion(current);
-  double latestN = parseVersion(latest);
-  if (latestN > currentN) {
-    return true;
+  /// This [Version] is lesser than the other [Version].
+  bool operator <(Version other) => compareTo(other) < 0;
+
+  /// This [Version] is greater than or equal to the other [Version].
+  bool operator >=(Version other) => compareTo(other) >= 0;
+
+  /// This [Version] is lesser than or equal to the other [Version].
+  bool operator <=(Version other) => compareTo(other) <= 0;
+
+  /// Attempt to parse the version string. Possible values:
+  /// 
+  /// - `0.0.0A`
+  /// - `2.14.5G-R2`
+  /// - `23.0.1`
+  static Version? tryParse(String input) {
+    RegExp regex = RegExp(r'^(\d+)\.(\d+)\.(\d+)([A-Z]+)?(?:-R(\d+))?$');
+    RegExpMatch? match = regex.firstMatch(input);
+    if (match == null) return null;
+
+    List<int> chars = match.groups([1, 2, 3]).map((x) => int.parse(x!)).toList();
+    String letter = match.group(4) ?? "A";
+    int release = int.tryParse(match.group(5) ?? "") ?? 0;
+    return Version(chars[0], chars[1], chars[2], letter, release);
   }
-  return false;
+
+  /// Same as [tryParse], but throws an exception if it can't be parsed.
+  static Version parse(String input) {
+    Version? result = tryParse(input);
+    if (result == null) throw Exception("Version could not be parsed: $input");
+    return result;
+  }
 }

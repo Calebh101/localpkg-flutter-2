@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:localpkg/dialogue.dart';
@@ -16,44 +14,14 @@ class ManualError extends Error {
   String toString() {
     return 'ManualError: $message';
   }
-
-  void warn({String? code, bool? trace}) {
-    logger.warn(toString(), code: code, trace: trace ?? false);
-  }
-
-  void error({String? code, bool? trace}) {
-    logger.error(toString(), code: code, trace: trace ?? false);
-  }
-
-  void invoke({String? code, bool? trace}) {
-    throw Exception(toString());
-  }
 }
 
 class CrashPageApp extends StatelessWidget {
-  final String? message;
-  final String? description;
-  final String? code;
-  final bool support;
-  final bool close;
-  final bool copy;
-  final Function? reset;
-  final Function? closeFunction;
-  final VoidCallback? retryFunction;
-  final String? trace;
+  final CrashPage child;
 
   const CrashPageApp({
     super.key,
-    this.message,
-    this.description,
-    this.code,
-    this.support = true,
-    this.reset,
-    this.close = false,
-    this.copy = true,
-    this.closeFunction,
-    this.retryFunction,
-    this.trace,
+    required this.child,
   });
 
   @override
@@ -61,37 +29,42 @@ class CrashPageApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Calebh101 Launcher: Error',
-      theme: brandTheme(seedColor: Colors.red),
-      darkTheme: brandTheme(seedColor: Colors.red, darkMode: true),
-      home: CrashPage(message: message, description: description, code: code, support: support, reset: reset, close: close, closeFunction: closeFunction, retryFunction: retryFunction, copy: copy, trace: trace),
+      theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: Colors.red)),
+      home: child,
     );
   }
+
+  static void run({required CrashPage child}) {
+    Widget app = CrashPageApp(child: child);
+    runApp(app);
+  }
+}
+
+class CrashPageButton {
+  final String text;
+  final void Function(BuildContext context, String? message, String? description, String? code, StackTrace? trace) action;
+  CrashPageButton(this.text, {required this.action});
+
+  static CrashPageButton copy = CrashPageButton("Copy", action: (context, message, description, code, trace) {
+    Clipboard.setData(ClipboardData(text: "Message: $message\nCode: $code\n\nContent:\n$description"));
+    SnackBarManager.show(context, "Copied to clipboard!");
+  });
 }
 
 class CrashPage extends StatefulWidget {
   final String? message;
   final String? description;
   final String? code;
-  final bool support;
-  final bool close;
-  final bool copy;
-  final Function? reset;
-  final Function? closeFunction;
-  final VoidCallback? retryFunction;
-  final String? trace;
+  final StackTrace? trace;
+  final List<CrashPageButton> buttons;
 
   const CrashPage({
     super.key,
     this.message,
     this.description,
     this.code,
-    this.support = true,
-    this.reset,
-    this.close = false,
-    this.copy = true,
-    this.closeFunction,
-    this.retryFunction,
     this.trace,
+    this.buttons = const [],
   });
 
   @override
@@ -125,7 +98,7 @@ class _CrashPageState extends State<CrashPage> {
                   children: [
                     Text("Stack Trace", style: TextStyle(fontSize: 18)),
                     ReadMoreText(
-                      widget.trace!,
+                      widget.trace!.toString(),
                       trimLines: 2,
                       trimMode: TrimMode.Line,
                       trimCollapsedText: "Show Full Stack Trace",
@@ -135,43 +108,12 @@ class _CrashPageState extends State<CrashPage> {
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    if (widget.support)
-                    TextButton(
-                      child: Text("Support"),
-                      onPressed: () {
-                        support(context);
-                      },
-                    ),
-                    if (widget.reset != null)
-                    TextButton(
-                      child: Text("Reset"),
-                      onPressed: () async {
-                        if (await ConfirmationDialogue.show(context: context, title: "Are you sure?", description: "Are you sure you want to delete all app data? This cannot be undone. Only use this if closing and reopening the app or waiting for the issue to be resolved does not fix this issue.") ?? false) {
-                          widget.reset!();
-                        }
-                      },
-                    ),
-                    if (widget.close)
-                    TextButton(
-                      child: Text("Close"),
-                      onPressed: () {
-                        (widget.closeFunction ?? () {
-                          exit(0);
-                        })();
-                      },
-                    ),
-                    if (widget.retryFunction != null)
-                    TextButton(
-                      child: Text("Retry"),
-                      onPressed: widget.retryFunction,
-                    ),
-                    if (widget.copy)
-                    TextButton(onPressed: () {
-                      Clipboard.setData(ClipboardData(text: "Message: ${widget.message}\nCode: ${widget.code}\n\nContent:\n${widget.description}"));
-                      SnackBarManager.show(context, "Copied to clipboard!");
-                    }, child: Text("Copy")),
-                  ],
+                  children: widget.buttons.map((button) {
+                    return TextButton(
+                      child: Text(button.text),
+                      onPressed: () => button.action.call(context, widget.message, widget.description, widget.code, widget.trace),
+                    );
+                  }).toList(),
                 ),
               ],
             ),
@@ -179,25 +121,5 @@ class _CrashPageState extends State<CrashPage> {
         ),
       ),
     );
-  }
-}
-
-void CrashScreen({String? message, String? description, String? code, Function? reset, bool support = true, bool close = false, bool copy = true, Function? closeFunction, VoidCallback? retryFunction, String? trace}) {
-  runApp(CrashPageApp(message: message, description: description, code: code, support: support, reset: reset, close: close, copy: copy, closeFunction: closeFunction, retryFunction: retryFunction, trace: trace));
-}
-
-extension StackTraceFormatter on StackTrace {
-  static String _format(String input, {int? end}) {
-    end ??= 16;
-    assert(end > 0, "end must be greater than 0.");
-    List<String> lines = input.split("\n");
-    bool expands = false;
-    if (lines.length > end) expands = true;
-    if (lines.length < end) end = lines.length;
-    return [...lines.sublist(0, end), if (expands) "And ${lines.length - end} more..."].join("\n");
-  }
-
-  String format({int? end}) {
-    return _format(toString(), end: end);
   }
 }
