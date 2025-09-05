@@ -22,6 +22,20 @@ For using the global analysis template, add this to your `analysis_options.yaml`
 include: package:localpkg/lints/default.yaml
 ```
 
-## Notes
+## Changed items
 
-`logger.dart` has been omitted in favor of the upcoming `styled_logger` package.
+Some notable changes:
+
+- Everything is now object-oriented, with both static methods and extensions.
+- `var.dart` is now `constants.dart`.
+- `Version` is now fully reworked.
+
+Several methods, functions, and classes have been removed, for cleanliness. Here are a few of them:
+
+- `logger.dart` has been removed in favor of the `styled_logger` package.
+- `tipjar.dart` has been removed because I don't really want it.
+- `brandTheme` has been removed in favor of variable UIs, instead of a set one for all apps.
+- `SettingButton` because it looks ugly.
+- `Section` because it doesn't serve a purpose.
+
+`online.dart` is also not present, and will not be present until my server rewrite is complete.
