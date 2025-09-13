@@ -339,4 +339,27 @@ extension EnumAddons on Enum {
   String toFormattedString() {
     return toString().split(".").sublist(1).join(".");
   }
+
+  /// Attempts to get the enum value from a string. This only works for basic enums.
+  /// 
+  /// This will return null if not found.
+  static T? fromStringOrNull<T>(List<T> values, String target) {
+    if (values is! List<Enum>) throw TypeError();
+
+    for (Enum value in values as List<Enum>) {
+      if (value.toFormattedString() == target) return value as T;
+      if (target.split(".").length > 1 && value.toFormattedString() == target.split(".").sublist(1).join(".")) return value as T;
+    }
+
+    return null;
+  }
+
+  /// Attempts to get the enum value from a string. This only works for basic enums.
+  /// 
+  /// This will throw a [TypeError] if not found.
+  static T fromString<T>(List<T> values, String target) {
+    T? value = fromStringOrNull(values, target);
+    if (value == null) throw TypeError();
+    return value;
+  }
 }
