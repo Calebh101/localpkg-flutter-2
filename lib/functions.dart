@@ -332,3 +332,11 @@ class Version implements Comparable<Version> {
     return result;
   }
 }
+
+/// Addons for enums.
+extension EnumAddons on Enum {
+  /// Removes the prefix for basic enums. Does not work with advanced enums.
+  String toFormattedString() {
+    return toString().split(".").sublist(1).join(".");
+  }
+}
