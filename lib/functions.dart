@@ -341,6 +341,11 @@ extension ObjectAddons on Object? {
   void toVoid() {
     return;
   }
+
+  /// Returns the value you put in. This is helpful for one-line return statements.
+  T thenReturn<T>(T value) {
+    return value;
+  }
 }
 
 /// Addons for lists of functions.
