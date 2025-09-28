@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -330,6 +332,36 @@ class Version implements Comparable<Version> {
     Version? result = tryParse(input);
     if (result == null) throw Exception("Version could not be parsed: $input");
     return result;
+  }
+}
+
+/// Addons for every object.
+extension ObjectAddons on Object? {
+  /// Literally just returns nothing. This is helpful for one-line return statements.
+  void toVoid() {
+    return;
+  }
+}
+
+/// Addons for lists of functions.
+extension FunctionListAddons<T extends Function> on Iterable<T> {
+  /// Calls every single function in this list.
+  /// 
+  /// Note that this will not wait for futures.
+  void chain() {
+    for (T function in this) {
+      function.call();
+    }
+  }
+
+  /// Calls every single function in this list.
+  /// 
+  /// This function will wait for each function, whether future or not.
+  FutureOr<void> chainFutures() async {
+    for (T function in this) {
+      dynamic result = function.call();
+      if (result is Future) await result;
+    }
   }
 }
 
