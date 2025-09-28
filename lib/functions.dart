@@ -348,14 +348,6 @@ extension ObjectAddons on Object? {
   }
 }
 
-/// Addons for void values.
-extension VoidAddons on void {
-  /// Returns the value you put in. This is helpful for one-line return statements.
-  T thenReturn<T>(T value) {
-    return value;
-  }
-}
-
 /// Addons for lists of functions.
 extension FunctionListAddons<T extends Function> on Iterable<T> {
   /// Calls every single function in this list.
