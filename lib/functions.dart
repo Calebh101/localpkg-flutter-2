@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -266,6 +267,7 @@ class Version implements Comparable<Version> {
 
   /// [major], [intermediate], and [minor] are required. [letter] and [release] have defaults.
   Version(this.major, this.intermediate, this.minor, [String letter = "A", this.release = 0]) : patch = letter.codeUnitAt(0), assert(release >= 0, "Release cannot be negative.");
+  Version._(this.major, this.intermediate, this.minor, this.patch, this.release);
 
   /// Returns the raw version string. [release] is only included if it is non-zero.
   @override
@@ -311,7 +313,14 @@ class Version implements Comparable<Version> {
   /// This [Version] is lesser than or equal to the other [Version].
   bool operator <=(Version other) => compareTo(other) <= 0;
 
-  /// Attempt to parse the version string. Possible values:
+  /// Turn this [Version] object into a small [Uint8List].
+  Uint8List toBinary() {
+    ByteData data = ByteData(10);
+    for (int i = 0; i < 5; i++) data.setInt16(i * 2, [major, intermediate, minor, patch, release][i], Endian.little);
+    return data.buffer.asUint8List();
+  }
+
+  /// Attempt to parse the version string. Possible values include:
   /// 
   /// - `0.0.0A`
   /// - `2.14.5G-R2`
@@ -330,8 +339,30 @@ class Version implements Comparable<Version> {
   /// Same as [tryParse], but throws an exception if it can't be parsed.
   static Version parse(String input) {
     Version? result = tryParse(input);
-    if (result == null) throw Exception("Version could not be parsed: $input");
+    if (result == null) throw ArgumentError("Version could not be parsed: $input");
     return result;
+  }
+
+  /// Try to parse a [Version] object from a list of bytes. Returns null on exception.
+  static Version? tryParseBinary(Uint8List input) {
+    try {
+      return parseBinary(input);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /// Parse a [Version] object from a list of bytes. Any exceptions thrown are uncaught.
+  static Version parseBinary(Uint8List input) {
+    ByteData data = input.buffer.asByteData();
+
+    int a = data.getInt16(0, Endian.little);
+    int b = data.getInt16(2, Endian.little);
+    int c = data.getInt16(4, Endian.little);
+    int d = data.getInt16(6, Endian.little);
+    int e = data.getInt16(8, Endian.little);
+
+    return Version._(a, b, c, d, e);
   }
 }
 

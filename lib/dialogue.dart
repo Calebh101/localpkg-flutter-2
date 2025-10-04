@@ -25,6 +25,21 @@ class SnackBarManager {
   }
 }
 
+/// A way to show "snack bars", or little popups on screen.
+/// 
+/// This was added as a quicker method of showing snack bars, rather than using [SnackBarManager].
+extension SnackBarManagerExtension on SnackBar {
+  /// Show a simple text-based snack bar.
+  static ScaffoldFeatureController<SnackBar, SnackBarClosedReason> show(BuildContext context, String content) {
+    return SnackBarManager.show(context, content);
+  }
+
+  /// Show a snack bar with a custom containing widget.
+  static ScaffoldFeatureController<SnackBar, SnackBarClosedReason> showCustom(BuildContext context, Widget content) {
+    return SnackBarManager.showCustom(context, content);
+  }
+}
+
 /// For showing simple dialogues.
 class SimpleDialogue {
   SimpleDialogue._();
