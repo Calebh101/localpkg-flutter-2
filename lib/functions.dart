@@ -419,3 +419,102 @@ extension EnumAddons on Enum {
     return fromStringOrNull(values, target, caseSensitive: caseSensitive) ?? (throw StateError("No value of '$T' matched '$target'."));
   }
 }
+
+/// Extension to parse integers from raw bytes.
+extension IntParser on List<int> {
+  /// Default endianness for parsing.
+  static const Endian defaultEndian = Endian.big;
+
+  /// Contains instance of byte data.
+  ByteData get _byteData => ByteData.sublistView(Uint8List(length)..setAll(0, this));
+
+  /// To unsigned 8-bit integer.
+  int toUint8() {
+    return _byteData.getUint8(0);
+  }
+
+  /// To unsigned 16-bit integer.
+  int toUint16([Endian endianness = defaultEndian]) {
+    return _byteData.getUint16(0, endianness);
+  }
+
+  /// To unsigned 24-bit integer.
+  int toUint24([Endian endianness = defaultEndian]) {
+    if (endianness == Endian.big) {
+      return (this[0] << 16) | (this[1] << 8) | this[2];
+    } else {
+      return (this[2] << 16) | (this[1] << 8) | this[0];
+    }
+  }
+
+  /// To unsigned 32-bit integer.
+  int toUint32([Endian endianness = defaultEndian]) {
+    return _byteData.getUint32(0, endianness);
+  }
+
+  /// To unsigned 64-bit integer.
+  int toUint64([Endian endianness = defaultEndian]) {
+    return _byteData.getUint64(0, endianness);
+  }
+
+  /// To signed 8-bit integer.
+  int toInt8() {
+    return _byteData.getInt8(0);
+  }
+
+  /// To signed 16-bit integer.
+  int toInt16([Endian endianness = defaultEndian]) {
+    return _byteData.getInt16(0, endianness);
+  }
+
+  /// To signed 24-bit integer.
+  int toInt24([Endian endianness = defaultEndian]) {
+    int value;
+
+    if (endianness == Endian.big) {
+      value = (this[0] << 16) | (this[1] << 8) | this[2];
+    } else {
+      value = (this[2] << 16) | (this[1] << 8) | this[0];
+    }
+
+    if (value & 0x800000 != 0) {
+      value |= ~0xFFFFFF;
+    }
+
+    return value;
+  }
+
+  /// To signed 32-bit integer.
+  int toInt32([Endian endianness = defaultEndian]) {
+    return _byteData.getInt32(0, endianness);
+  }
+
+  /// To signed 64-bit integer.
+  int toInt64([Endian endianness = defaultEndian]) {
+    return _byteData.getInt64(0, endianness);
+  }
+}
+
+/// Formats a list of bytes into a string.
+extension ByteFormatter on List<int> {
+  /// Formats a list of bytes into a string. If there's more than the maximum allowed, it will be shortened.
+  String formatBytes({String delim = ", ", int max = 10}) {
+    List<int> values = this;
+    bool moreThanMax = false;
+
+    if (values.length > max) {
+      values = values.sublist(0, max);
+      moreThanMax = true;
+    }
+
+    return [...values.map((x) => "0x${x.toRadixString(16).toUpperCase().padLeft(2, 0.toString())}"), if (moreThanMax) ...["${length - max} more..."]].join(delim);
+  }
+}
+
+/// Formats a singular integer as a byte.
+extension ByteFormatterSingular on int {
+  /// Formats a singular integer as a byte.
+  String formatByte() {
+    return [this].formatBytes();
+  }
+}
