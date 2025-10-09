@@ -248,178 +248,6 @@ extension StackTraceFormatter on StackTrace {
   }
 }
 
-/// Manages versions and version parsing.
-class Version implements Comparable<Version> {
-  /// `a` in `a.b.c`
-  final int major;
-
-  /// `b` in `a.b.c`
-  final int intermediate;
-
-  /// `c` in `a.b.c`
-  final int minor;
-
-  /// Letter identifier.
-  final int patch;
-
-  /// Optional revision.
-  final int release;
-
-  /// [major], [intermediate], and [minor] are required. [letter] and [release] have defaults.
-  Version(this.major, this.intermediate, this.minor, [String letter = "A", this.release = 0]) : patch = letter.codeUnitAt(0), assert(release >= 0, "Release cannot be negative.");
-  Version._(this.major, this.intermediate, this.minor, this.patch, this.release);
-
-  /// Returns the raw version string. [release] is only included if it is non-zero.
-  @override
-  String toString() {
-    String main = "${[major, intermediate, minor].join(".")}${String.fromCharCode(patch)}";
-    String releaseString = "R$release";
-    return [main, if (release > 0) releaseString].join("-");
-  }
-
-  @override
-  int compareTo(Version other) {
-    if (major != other.major) return major.compareTo(other.major);
-    if (intermediate != other.intermediate) return intermediate.compareTo(other.intermediate);
-    if (minor != other.minor) return minor.compareTo(other.minor);
-    if (patch != other.patch) return patch.compareTo(other.patch);
-    return release.compareTo(other.release);
-  }
-
-  @override
-  int get hashCode => major.hashCode ^ intermediate.hashCode ^ minor.hashCode ^ patch.hashCode ^ release.hashCode;
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-
-    return other is Version &&
-      major == other.major &&
-      intermediate == other.intermediate &&
-      minor == other.minor &&
-      patch == other.patch &&
-      release == other.release;
-  }
-
-  /// This [Version] is greater than the other [Version].
-  bool operator >(Version other) => compareTo(other) > 0;
-
-  /// This [Version] is lesser than the other [Version].
-  bool operator <(Version other) => compareTo(other) < 0;
-
-  /// This [Version] is greater than or equal to the other [Version].
-  bool operator >=(Version other) => compareTo(other) >= 0;
-
-  /// This [Version] is lesser than or equal to the other [Version].
-  bool operator <=(Version other) => compareTo(other) <= 0;
-
-  /// Turn this [Version] object into a small [Uint8List].
-  Uint8List toBinary() {
-    ByteData data = ByteData(10);
-    for (int i = 0; i < 5; i++) data.setInt16(i * 2, [major, intermediate, minor, patch, release][i], Endian.little);
-    return data.buffer.asUint8List();
-  }
-
-  /// Attempt to parse the version string. Possible values include:
-  /// 
-  /// - `0.0.0A`
-  /// - `2.14.5G-R2`
-  /// - `23.0.1`
-  static Version? tryParse(String input) {
-    RegExp regex = RegExp(r'^(\d+)\.(\d+)\.(\d+)([A-Z]+)?(?:-R(\d+))?$');
-    RegExpMatch? match = regex.firstMatch(input);
-    if (match == null) return null;
-
-    List<int> chars = match.groups([1, 2, 3]).map((x) => int.parse(x!)).toList();
-    String letter = match.group(4) ?? "A";
-    int release = int.tryParse(match.group(5) ?? "") ?? 0;
-    return Version(chars[0], chars[1], chars[2], letter, release);
-  }
-
-  /// Same as [tryParse], but throws an exception if it can't be parsed.
-  static Version parse(String input) {
-    Version? result = tryParse(input);
-    if (result == null) throw ArgumentError("Version could not be parsed: $input");
-    return result;
-  }
-
-  /// Try to parse a [Version] object from a list of bytes. Returns null on exception.
-  static Version? tryParseBinary(Uint8List input) {
-    try {
-      return parseBinary(input);
-    } catch (e) {
-      return null;
-    }
-  }
-
-  /// Parse a [Version] object from a list of bytes. Any exceptions thrown are uncaught.
-  static Version parseBinary(Uint8List input) {
-    ByteData data = input.buffer.asByteData();
-
-    int a = data.getInt16(0, Endian.little);
-    int b = data.getInt16(2, Endian.little);
-    int c = data.getInt16(4, Endian.little);
-    int d = data.getInt16(6, Endian.little);
-    int e = data.getInt16(8, Endian.little);
-
-    return Version._(a, b, c, d, e);
-  }
-}
-
-/// Addons for every object.
-extension ObjectAddons on Object? {
-  /// Literally just returns nothing. This is helpful for one-line return statements.
-  void toVoid() {
-    return;
-  }
-
-  /// Returns the value you put in. This is helpful for one-line return statements.
-  T thenReturn<T>(T value) {
-    return value;
-  }
-}
-
-/// Addons for lists of functions.
-extension FunctionListAddons<T extends Function> on Iterable<T> {
-  /// Calls every single function in this list.
-  /// 
-  /// Note that this will not wait for futures.
-  void chain() {
-    for (T function in this) {
-      function.call();
-    }
-  }
-
-  /// Calls every single function in this list.
-  /// 
-  /// This function will wait for each function, whether future or not.
-  FutureOr<void> chainFutures() async {
-    for (T function in this) {
-      dynamic result = function.call();
-      if (result is Future) await result;
-    }
-  }
-}
-
-/// Addons for enums.
-extension EnumAddons on Enum {
-  /// Attempts to get the enum value from a string.
-  /// 
-  /// This will return null if not found.
-  static T? fromStringOrNull<T extends Enum>(List<T> values, String target, {bool caseSensitive = true}) {
-    if (caseSensitive == false) target = target.toLowerCase();
-    for (T value in values) if ((caseSensitive ? value.name : value.name.toLowerCase()) == target) return value;
-    return null;
-  }
-
-  /// Attempts to get the enum value from a string.
-  /// 
-  /// This will throw a [StateError] if not found.
-  static T fromString<T extends Enum>(List<T> values, String target, {bool caseSensitive = true}) {
-    return fromStringOrNull(values, target, caseSensitive: caseSensitive) ?? (throw StateError("No value of '$T' matched '$target'."));
-  }
-}
-
 /// Extension to parse integers from raw bytes.
 extension IntParser on List<int> {
   /// Default endianness for parsing.
@@ -516,5 +344,59 @@ extension ByteFormatterSingular on int {
   /// Formats a singular integer as a byte.
   String formatByte() {
     return [this].formatBytes();
+  }
+}
+
+/// Addons for every object.
+extension ObjectAddons on Object? {
+  /// Literally just returns nothing. This is helpful for one-line return statements.
+  void toVoid() {
+    return;
+  }
+
+  /// Returns the value you put in. This is helpful for one-line return statements.
+  T thenReturn<T>(T value) {
+    return value;
+  }
+}
+
+/// Addons for lists of functions.
+extension FunctionListAddons<T extends Function> on Iterable<T> {
+  /// Calls every single function in this list.
+  /// 
+  /// Note that this will not wait for futures.
+  void chain() {
+    for (T function in this) {
+      function.call();
+    }
+  }
+
+  /// Calls every single function in this list.
+  /// 
+  /// This function will wait for each function, whether future or not.
+  FutureOr<void> chainFutures() async {
+    for (T function in this) {
+      dynamic result = function.call();
+      if (result is Future) await result;
+    }
+  }
+}
+
+/// Addons for enums.
+extension EnumAddons on Enum {
+  /// Attempts to get the enum value from a string.
+  /// 
+  /// This will return null if not found.
+  static T? fromStringOrNull<T extends Enum>(List<T> values, String target, {bool caseSensitive = true}) {
+    if (caseSensitive == false) target = target.toLowerCase();
+    for (T value in values) if ((caseSensitive ? value.name : value.name.toLowerCase()) == target) return value;
+    return null;
+  }
+
+  /// Attempts to get the enum value from a string.
+  /// 
+  /// This will throw a [StateError] if not found.
+  static T fromString<T extends Enum>(List<T> values, String target, {bool caseSensitive = true}) {
+    return fromStringOrNull(values, target, caseSensitive: caseSensitive) ?? (throw StateError("No value of '$T' matched '$target'."));
   }
 }
