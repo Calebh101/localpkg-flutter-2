@@ -60,9 +60,8 @@ class TimeFormatter {
     int roundedHour = hour;
 
     if (army == false) {
-      if (hour > 12) {
-        roundedHour = hour - 12;
-      }
+      if (hour == 0) roundedHour = 12;
+      if (hour > 12) roundedHour = hour - 12;
     }
 
     String formatted = "$roundedHour:${minute.toString().padLeft(2, '0')}${output == FormatTimeMode.hhmmss || output == FormatTimeMode.mmss ? (":${second.toString().padLeft(2, '0')}"): ""}${!army ? (" ${hour >= 12 ? "PM" : "AM"}") : ""}";
@@ -129,7 +128,7 @@ class UrlManager {
   /// Removes `http://` and `https://`, and optionally WebSocket and other protocols.
   static String removeHttpPrefix(String url, {bool removeWebsocket = true, List<String> otherProtocols = const []}) {
     List<String> protocols = ["http", "https", if (removeWebsocket) ...["ws", "wss"], ...otherProtocols];
-    for (String protocol in protocols) url.replaceFirst("$protocol://", "");
+    for (String protocol in protocols) url = url.replaceFirst("$protocol://", "");
     return url;
   }
 }
