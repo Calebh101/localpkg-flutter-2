@@ -399,3 +399,24 @@ extension EnumAddons on Enum {
     return fromStringOrNull(values, target, caseSensitive: caseSensitive) ?? (throw StateError("No value of '$T' matched '$target'."));
   }
 }
+
+/// Pads lists to make them a set length.
+extension ListPadder<T> on List<T> {
+  /// Fills the list with the provided [value] until it reaches [amount] length, starting from the left. Note that the provided list is mutated.
+  /// 
+  /// If the list length is greater than [amount], then the list is returned unchanged.
+  List<T> padLeft(int amount, T value) {
+    if (length >= amount) return this;
+    insertAll(0, List.filled(amount - length, value));
+    return this;
+  }
+
+  /// Fills the list with the provided [value] until it reaches [amount] length, starting from the right. Note that the provided list is mutated.
+  /// 
+  /// If the list length is greater than [amount], then the list is returned unchanged.
+  List<T> padRight(int amount, T value) {
+    if (length >= amount) return this;
+    addAll(List.filled(amount - length, value));
+    return this;
+  }
+}
