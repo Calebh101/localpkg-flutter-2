@@ -402,21 +402,23 @@ extension EnumAddons on Enum {
 
 /// Pads lists to make them a set length.
 extension ListPadder<T> on List<T> {
-  /// Fills the list with the provided [value] until it reaches [amount] length, starting from the left. Note that the provided list is mutated.
+  /// Fills the list with the provided [value] until it reaches [amount] length, starting from the left. Note that the provided list is not mutated; instead, a copy is returned.
   /// 
   /// If the list length is greater than [amount], then the list is returned unchanged.
   List<T> padLeft(int amount, T value) {
-    if (length >= amount) return this;
-    insertAll(0, List.filled(amount - length, value));
-    return this;
+    List<T> list = List.from(this);
+    if (length >= amount) return list;
+    list.insertAll(0, List.filled(amount - length, value));
+    return list;
   }
 
-  /// Fills the list with the provided [value] until it reaches [amount] length, starting from the right. Note that the provided list is mutated.
+  /// Fills the list with the provided [value] until it reaches [amount] length, starting from the right. Note that the provided list is mutated; instead, a copy is returned.
   /// 
   /// If the list length is greater than [amount], then the list is returned unchanged.
   List<T> padRight(int amount, T value) {
-    if (length >= amount) return this;
-    addAll(List.filled(amount - length, value));
-    return this;
+    List<T> list = List.from(this);
+    if (length >= amount) return list;
+    list.addAll(List.filled(amount - length, value));
+    return list;
   }
 }
