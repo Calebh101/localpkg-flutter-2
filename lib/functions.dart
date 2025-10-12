@@ -320,6 +320,16 @@ extension IntParser on List<int> {
   int toInt64([Endian endianness = defaultEndian]) {
     return _byteData.getInt64(0, endianness);
   }
+
+  /// To 32-bit floating-point number.
+  double toFloat32([Endian endianness = defaultEndian]) {
+    return _byteData.getFloat32(0, endianness);
+  }
+
+  /// To 64-bit floating-point number.
+  double toFloat64([Endian endianness = defaultEndian]) {
+    return _byteData.getFloat64(0, endianness);
+  }
 }
 
 /// Formats a list of bytes into a string.
@@ -407,7 +417,7 @@ extension ListPadder<T> on List<T> {
   /// If the list length is greater than [amount], then the list is returned unchanged.
   List<T> padLeft(int amount, T value) {
     List<T> list = List.from(this);
-    if (length >= amount) return list;
+    if (list.length >= amount) return list;
     list.insertAll(0, List.filled(amount - length, value));
     return list;
   }
@@ -417,7 +427,7 @@ extension ListPadder<T> on List<T> {
   /// If the list length is greater than [amount], then the list is returned unchanged.
   List<T> padRight(int amount, T value) {
     List<T> list = List.from(this);
-    if (length >= amount) return list;
+    if (list.length >= amount) return list;
     list.addAll(List.filled(amount - length, value));
     return list;
   }
