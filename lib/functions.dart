@@ -341,6 +341,14 @@ extension IntParser on List<int> {
   }
 }
 
+/// Some extra addons on [ByteData] objects.
+extension ByteDataExtensions on ByteData {
+  /// Return the buffer as a [Uint8List].
+  Uint8List toUint8List() {
+    return buffer.asUint8List();
+  }
+}
+
 /// Formats a list of bytes into a string.
 extension ByteFormatter on List<int> {
   /// Formats a list of bytes into a string. If there's more than the maximum allowed, it will be shortened.
