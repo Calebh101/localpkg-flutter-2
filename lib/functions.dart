@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -281,7 +282,11 @@ extension IntParser on List<int> {
 
   /// To unsigned 64-bit integer.
   int toUint64([Endian endianness = defaultEndian]) {
-    return _byteData.getUint64(0, endianness);
+    if (!kIsWeb) return _byteData.getUint64(0, endianness);
+
+    int low = _byteData.getUint32(0, endianness);
+    int high = _byteData.getUint32(4, endianness);
+    return endianness == Endian.little ? (high << 32) | low : ((low << 32) | high);
   }
 
   /// To signed 8-bit integer.
@@ -318,7 +323,11 @@ extension IntParser on List<int> {
 
   /// To signed 64-bit integer.
   int toInt64([Endian endianness = defaultEndian]) {
-    return _byteData.getInt64(0, endianness);
+    if (!kIsWeb) return _byteData.getInt64(0, endianness);
+
+    int low = _byteData.getUint32(0, endianness);
+    int high = _byteData.getInt32(4, endianness);
+    return endianness == Endian.little ? (high << 32) | low : ((low << 32) | high);
   }
 
   /// To 32-bit floating-point number.
