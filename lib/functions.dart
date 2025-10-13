@@ -347,6 +347,50 @@ extension ByteDataExtensions on ByteData {
   Uint8List toUint8List() {
     return buffer.asUint8List();
   }
+
+  void _setInt64(bool signed, int byteOffset, int value, Endian endian) {
+    if (!kIsWeb) return setUint64(byteOffset, value, endian);
+    int low = value & 0xFFFFFFFF;
+    int high = (value >> 32) & 0xFFFFFFFF;
+
+    if (endian == Endian.little) {
+      setUint32(byteOffset, low, endian);
+      if (signed) setInt32(byteOffset + 4, high, endian); else setUint32(byteOffset + 4, high, endian);
+    } else {
+      if (signed) setInt32(byteOffset, high, endian); else setUint32(byteOffset, high, endian);
+      setUint32(byteOffset + 4, low, endian);
+    }
+  }
+
+  /// Sets the eight bytes starting at the specified [byteOffset] in this object
+  /// to the unsigned binary representation of the specified [value],
+  /// which must fit in eight bytes.
+  ///
+  /// In other words, [value] must be between
+  /// 0 and 2<sup>64</sup> - 1, inclusive.
+  ///
+  /// The [byteOffset] must be non-negative, and
+  /// `byteOffset + 8` must be less than or equal to the length of this object.
+  /// 
+  /// This function is designed to work on web safely.
+  void setUint64Safe(int byteOffset, int value, [Endian endian = Endian.big]) {
+    return _setInt64(false, byteOffset, value, endian);
+  }
+
+  /// Sets the eight bytes starting at the specified [byteOffset] in this
+  /// object to the two's complement binary representation of the specified
+  /// [value], which must fit in eight bytes.
+  ///
+  /// In other words, [value] must lie
+  /// between -2<sup>63</sup> and 2<sup>63</sup> - 1, inclusive.
+  ///
+  /// The [byteOffset] must be non-negative, and
+  /// `byteOffset + 8` must be less than or equal to the length of this object.
+  /// 
+  /// This function is designed to work on web safely.
+  void setInt64Safe(int byteOffset, int value, [Endian endian = Endian.big]) {
+    return _setInt64(true, byteOffset, value, endian);
+  }
 }
 
 /// Formats a list of bytes into a string.
