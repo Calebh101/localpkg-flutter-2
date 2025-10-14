@@ -55,8 +55,10 @@ void main(List<String> arguments) async {
   }
 
   localpkg["description"]["resolved-ref"] = sha;
+  data["packages"]["localpkg"] = localpkg;
+
   print("Updating packages...");
-  pubspecLock.writeAsStringSync(json2yaml(localpkg));
+  pubspecLock.writeAsStringSync(json2yaml(data));
   Process.runSync("flutter", ["pub", "get"], runInShell: true, workingDirectory: directory.path);
   print("Job done!");
 }
