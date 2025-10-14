@@ -14,7 +14,7 @@ void main(List<String> arguments) async {
 
   ArgResults args = parser.parse(arguments);
   Directory directory = Directory(args["directory"]);
-  File pubspecLock = File(p.joinAll([directory.path, "pubpsec.lock"]));
+  File pubspecLock = File(p.joinAll([directory.path, "pubspec.lock"]));
 
   if (!directory.existsSync()) {
     print("Directory ${directory.path} does not exist.");
