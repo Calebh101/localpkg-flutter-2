@@ -1,8 +1,6 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:args/args.dart';
-import 'package:http/http.dart' as http;
 import 'package:json2yaml/json2yaml.dart';
 import 'package:path/path.dart' as p;
 import 'package:yaml/yaml.dart';
@@ -35,7 +33,7 @@ void main(List<String> arguments) async {
     exit(1);
   }
 
-  String initialCommitSetting = localpkg["description"]["resolved-ref"];
+  /*String initialCommitSetting = localpkg["description"]["resolved-ref"];
   print("Fetching latest commit...");
   http.Response response = await http.get(Uri.parse("https://api.github.com/repos/Calebh101/localpkg-flutter-2/commits/main"));
 
@@ -52,9 +50,9 @@ void main(List<String> arguments) async {
   if (sha == initialCommitSetting) {
     print("Package localpkg is up to date.");
     exit(0);
-  }
+  }*/
 
-  localpkg["description"]["resolved-ref"] = sha;
+  localpkg["description"]["resolved-ref"] = /* sha */ "";
   data["packages"]["localpkg"] = localpkg;
 
   print("Updating packages...");
