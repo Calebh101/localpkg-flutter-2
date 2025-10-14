@@ -14,28 +14,30 @@ void main(List<String> arguments) async {
 
   ArgResults args = parser.parse(arguments);
   Directory directory = Directory(args["directory"]);
-  File pubspecLock = File(p.joinAll([directory.path, "pubspec.lock"]));
+  File pubspec = File(p.joinAll([directory.path, "pubspec.yaml"]));
 
   if (!directory.existsSync()) {
     print("Directory ${directory.path} does not exist.");
     exit(1);
   }
 
-  if (!pubspecLock.existsSync()) {
-    print("File ${pubspecLock.path} does not exist.");
+  if (!pubspec.existsSync()) {
+    print("File ${pubspec.path} does not exist.");
     exit(1);
   }
 
-  var loaded = loadYaml(pubspecLock.readAsStringSync());
+  var loaded = loadYaml(pubspec.readAsStringSync());
   var data = yamlToMap(loaded);
-  Map<String, dynamic>? localpkg = data["packages"]?["localpkg"];
+  Map<String, dynamic>? localpkg = data["dependencies"]?["localpkg"];
 
   if (localpkg == null) {
     print("Data for localpkg does not exist.");
     exit(1);
   }
 
-  String initialCommitSetting = localpkg["description"]["resolved-ref"];
+  String? initialCommitSetting = localpkg["git"]?["ref"];
+  if (initialCommitSetting == "main") initialCommitSetting = null;
+
   print("Fetching latest commit...");
   http.Response response = await http.get(Uri.parse("https://api.github.com/repos/Calebh101/localpkg-flutter-2/commits/main"));
 
@@ -54,12 +56,17 @@ void main(List<String> arguments) async {
     exit(0);
   }
 
-  localpkg["description"]["resolved-ref"] = sha;
-  data["packages"]["localpkg"] = localpkg;
+  localpkg["git"]["ref"] = sha;
+  data["dependencies"]["localpkg"] = localpkg;
 
   print("Updating packages...");
-  pubspecLock.writeAsStringSync(json2yaml(data));
-  Process.runSync("flutter", ["pub", "get"], runInShell: true, workingDirectory: directory.path);
+  pubspec.writeAsStringSync(json2yaml(data));
+
+  var process = await Process.start("flutter", ["pub", "get"], runInShell: true, workingDirectory: directory.path);
+  process.stdout.listen(stdout.add);
+  process.stderr.listen(stderr.add);
+
+  int exitCode = await process.exitCode;
   print("Job done!");
 }
 
