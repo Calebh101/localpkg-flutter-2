@@ -22,6 +22,10 @@ For using the global analysis template, add this to your `analysis_options.yaml`
 include: package:localpkg/lints/default.yaml
 ```
 
+There are also some scripts that can be used with `dart run <script>`:
+
+- `locakpkg:update`: Update localpkg in the Flutter project.
+
 ## Changed items
 
 Some notable changes:
