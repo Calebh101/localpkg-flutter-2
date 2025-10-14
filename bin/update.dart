@@ -27,7 +27,7 @@ void main(List<String> arguments) async {
   }
 
   var loaded = loadYaml(pubspecLock.readAsStringSync());
-  var data = Map<String, dynamic>.from(loaded);
+  var data = yamlToMap(loaded);
   Map<String, dynamic>? localpkg = data["packages"]?["localpkg"];
 
   if (localpkg == null) {
@@ -59,4 +59,16 @@ void main(List<String> arguments) async {
   pubspecLock.writeAsStringSync(json2yaml(localpkg));
   Process.runSync("flutter", ["pub", "get"], runInShell: true, workingDirectory: directory.path);
   print("Job done!");
+}
+
+dynamic yamlToMap(dynamic yaml) {
+  if (yaml is YamlMap) {
+    return Map<String, dynamic>.fromEntries(
+      yaml.entries.map((e) => MapEntry(e.key, yamlToMap(e.value))),
+    );
+  } else if (yaml is YamlList) {
+    return yaml.map((e) => yamlToMap(e)).toList();
+  } else {
+    return yaml;
+  }
 }
