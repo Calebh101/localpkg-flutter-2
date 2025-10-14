@@ -1,6 +1,6 @@
 name: localpkg
 description: "A new, object-oriented localpkg Flutter version."
-version: 0.0.0
+version: 2.0.0
 homepage: https://github.com/Calebh101/localpkg-flutter-2
 publish_to: none
 
@@ -9,12 +9,17 @@ environment:
   flutter: ">=1.17.0"
 
 dependencies:
+  args: ^2.7.0
   flutter:
     sdk: flutter
+  http: ^1.5.0
+  json2yaml: ^3.0.1
+  path: ^1.9.1
   path_provider: ^2.1.5
   readmore: ^3.0.0
   shared_preferences: ^2.5.3
   url_launcher: ^6.3.2
+  yaml: ^3.1.3
 
 dev_dependencies:
   flutter_test:
