@@ -50,7 +50,7 @@ void main(List<String> arguments) async {
   print("Found commit ID of $sha.");
 
   if (sha == initialCommitSetting) {
-    print("Localpkg is up to date.");
+    print("Package localpkg is up to date.");
     exit(0);
   }
 
