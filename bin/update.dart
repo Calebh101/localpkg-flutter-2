@@ -39,7 +39,7 @@ void main(List<String> arguments) async {
   print("Fetching latest commit...");
   http.Response response = await http.get(Uri.parse("https://api.github.com/repos/Calebh101/localpkg-flutter-2/commits/main"));
 
-  if (response.statusCode < 200 || response.statusCode > 210) {
+  if (response.statusCode < 200 || response.statusCode > 300) {
     print("Received bad request for API call: code ${response.statusCode}.");
     print(response.body);
     exit(-1);
@@ -47,7 +47,7 @@ void main(List<String> arguments) async {
 
   Map body = jsonDecode(response.body);
   String sha = body["sha"];
-  print("Found commit ID of $sha.");
+  print("Found commit ID of $sha: ${body["commit"]?["message"] ?? "Unknown"}");
 
   if (sha == initialCommitSetting) {
     print("Package localpkg is up to date.");
