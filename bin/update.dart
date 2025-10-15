@@ -65,17 +65,24 @@ void main(List<String> arguments) async {
     exit(0);
   }
 
-
-  print("Updating packages...");
   editor.update(["dependencies", "localpkg", "git", "ref"], sha);
   await pubspec.writeAsString(editor.toString());
+  print("Updating Git cache...");
+  await resetGitCache();
 
+  print("Updating packages...");
   var process = await Process.start("flutter", ["pub", "get"], runInShell: true, workingDirectory: directory.path);
   process.stdout.transform(utf8.decoder).listen(stdout.write);
-process.stderr.transform(utf8.decoder).listen(stderr.write);
-
+  process.stderr.transform(utf8.decoder).listen(stderr.write);
   int exitCode = await process.exitCode;
-  print("Job done!");
+
+  if (exitCode != 0) {
+    print("Process failed with code $exitCode.");
+    exit(-1);
+  } {
+    print("Job done!");
+    exit(0);
+  }
 }
 
 dynamic yamlToMap(dynamic yaml) {
@@ -87,5 +94,43 @@ dynamic yamlToMap(dynamic yaml) {
     return yaml.map((e) => yamlToMap(e)).toList();
   } else {
     return yaml;
+  }
+}
+
+Future<void> resetGitCache() async {
+  final home = Platform.environment['HOME'] ?? Platform.environment['USERPROFILE'];
+  if (home == null) return;
+
+  final cacheDir = Directory(p.join(home, ".pub-cache", "git", "cache"));
+  if (!await cacheDir.exists()) return;
+  var files = cacheDir.listSync();
+  Directory? cached;
+
+  for (var file in files) {
+    if (file is Directory && file.path.contains("localpkg-flutter-2")) {
+      cached = file;
+      break;
+    }
+  }
+
+  if (cached == null) return;
+  final dir = Directory(cached.path);
+  final process = await Process.start("git", ["fetch", "origin"], workingDirectory: dir.path);
+  await stdout.addStream(process.stdout);
+  await stderr.addStream(process.stderr);
+  int code = await process.exitCode;
+
+  if (code != 0) {
+    await dir.delete(recursive: true);
+  } else {
+    var process = await Process.start("git", ["reset", "--hard", "origin/main"], workingDirectory: dir.path);
+    await stdout.addStream(process.stdout);
+    await stderr.addStream(process.stderr);
+    int code = await process.exitCode;
+
+    if (code != 0) {
+      print("Process failed with code $code.");
+      exit(-1);
+    }
   }
 }
