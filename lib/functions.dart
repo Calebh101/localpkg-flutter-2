@@ -430,6 +430,24 @@ extension ObjectAddons on Object? {
   }
 }
 
+/// Some nice addons to [Future]s.
+extension FutureAddons<T> on Future<T> {
+  /// Returns a `Future<bool>` that represents if the future will equal the inputted [value] when it completes.
+  Future<bool> willEqual(T value) async {
+    return (await this) == value;
+  }
+
+  /// Returns a `Future<bool>` that represents if the future will be null when it completes.
+  Future<bool> willBeNull() async {
+    return (await this) == null;
+  }
+
+  /// Returns a `Future<bool>` that represents if the future will be non-null when it completes.
+  Future<bool> willBeNonNull() async {
+    return (await this) != null;
+  }
+}
+
 /// Addons for lists of functions.
 extension FunctionListAddons<T extends Function> on Iterable<T> {
   /// Calls every single function in this list.
