@@ -8,6 +8,8 @@ import 'package:yaml/yaml.dart';
 import 'package:yaml_edit/yaml_edit.dart';
 
 void main(List<String> arguments) async {
+  print("Starting update script...");
+
   ArgParser parser = ArgParser()
     ..addOption("directory", abbr: "d", help: "Working directory of Flutter project.", defaultsTo: Directory.current.path)
     ..addOption("commit", abbr: "c", help: "Commit to use for localpkg.")
