@@ -114,24 +114,7 @@ Future<void> resetGitCache(String sha) async {
 
   if (cached == null) return;
   final dir = Directory(cached.path);
-  final process = await Process.start("git", ["fetch", "origin"], workingDirectory: dir.path);
-  await stdout.addStream(process.stdout);
-  await stderr.addStream(process.stderr);
-  int code = await process.exitCode;
-
-  if (code != 0) {
-    await dir.delete(recursive: true);
-  } else {
-    var process = await Process.start("git", ["reset", "--hard", sha], workingDirectory: dir.path);
-    await stdout.addStream(process.stdout);
-    await stderr.addStream(process.stderr);
-    int code = await process.exitCode;
-
-    if (code != 0) {
-      print("Process failed with code $code.");
-      exit(-1);
-    }
-  }
+  await dir.delete(recursive: true);
 }
 
 extension FutureAddons<T> on Future<T> {
