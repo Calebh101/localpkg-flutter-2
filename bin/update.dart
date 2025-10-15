@@ -67,7 +67,7 @@ void main(List<String> arguments) async {
   editor.update(["dependencies", "localpkg", "git", "ref"], sha);
   await pubspec.writeAsString(editor.toString());
   print("Updating Git cache...");
-  await resetGitCache();
+  await resetGitCache(sha);
 
   print("Updating packages...");
   var process = await Process.start("flutter", ["pub", "get"], runInShell: true, workingDirectory: directory.path);
@@ -96,7 +96,7 @@ dynamic yamlToMap(dynamic yaml) {
   }
 }
 
-Future<void> resetGitCache() async {
+Future<void> resetGitCache(String sha) async {
   final home = Platform.environment['HOME'] ?? Platform.environment['USERPROFILE'];
   if (home == null) return;
 
@@ -122,7 +122,7 @@ Future<void> resetGitCache() async {
   if (code != 0) {
     await dir.delete(recursive: true);
   } else {
-    var process = await Process.start("git", ["reset", "--hard", "origin/main"], workingDirectory: dir.path);
+    var process = await Process.start("git", ["reset", "--hard", sha], workingDirectory: dir.path);
     await stdout.addStream(process.stdout);
     await stderr.addStream(process.stderr);
     int code = await process.exitCode;
