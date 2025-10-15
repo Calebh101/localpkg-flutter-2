@@ -59,7 +59,8 @@ void main(List<String> arguments) async {
 
   Map body = jsonDecode(response.body);
   String sha = body["sha"];
-  print("Found commit ID of $sha: ${body["commit"]?["message"] ?? "Unknown"}");
+  String message = body["commit"]?["message"] ?? "Unknown";
+  print("Found commit ID of $sha: $message");
 
   if (sha == initialCommitSetting) {
     print("Package localpkg is up to date.");
@@ -81,7 +82,7 @@ void main(List<String> arguments) async {
     print("Process failed with code $exitCode.");
     exit(-1);
   } {
-    print("Job done! Updated to commit $sha from commit $initialCommitSetting.");
+    print("Job done! Updated to commit $sha ($message) from commit $initialCommitSetting.");
     exit(0);
   }
 }
