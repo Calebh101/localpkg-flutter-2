@@ -3,9 +3,9 @@ import 'dart:io';
 
 import 'package:args/args.dart';
 import 'package:http/http.dart' as http;
-import 'package:json2yaml/json2yaml.dart';
 import 'package:path/path.dart' as p;
 import 'package:yaml/yaml.dart';
+import 'package:yaml_edit/yaml_edit.dart';
 
 void main(List<String> arguments) async {
   ArgParser parser = ArgParser()
@@ -26,7 +26,8 @@ void main(List<String> arguments) async {
     exit(1);
   }
 
-  var loaded = loadYaml(pubspec.readAsStringSync());
+  YamlEditor editor = YamlEditor(pubspec.readAsStringSync());
+  var loaded = editor.parseAt([]);
   var data = yamlToMap(loaded);
   Map<String, dynamic>? localpkg = data["dependencies"]?["localpkg"];
 
@@ -56,11 +57,10 @@ void main(List<String> arguments) async {
     exit(0);
   }
 
-  localpkg["git"]["ref"] = sha;
-  data["dependencies"]["localpkg"] = localpkg;
 
   print("Updating packages...");
-  pubspec.writeAsStringSync(json2yaml(data));
+  editor.update(["dependencies", "localpkg", "git", "ref"], sha);
+  pubspec.writeAsStringSync(editor.toString());
 
   var process = await Process.start("flutter", ["pub", "get"], runInShell: true, workingDirectory: directory.path);
   process.stdout.listen(stdout.add);
