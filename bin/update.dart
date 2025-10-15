@@ -64,9 +64,9 @@ void main(List<String> arguments) async {
     exit(0);
   }
 
+  print("Updating data...");
   editor.update(["dependencies", "localpkg", "git", "ref"], sha);
   await pubspec.writeAsString(editor.toString());
-  print("Updating Git cache...");
   await resetGitCache(sha);
 
   print("Updating packages...");
