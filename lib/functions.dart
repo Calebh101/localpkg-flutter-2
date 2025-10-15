@@ -407,6 +407,12 @@ extension ByteFormatter on List<int> {
 
     return [...values.map((x) => "0x${x.toRadixString(16).toUpperCase().padLeft(2, 0.toString())}"), if (moreThanMax) ...["${length - max} more..."]].join(delim);
   }
+
+  /// Format the inputted list of bytes as a singular hex string.
+  String formatHex() {
+    List<int> values = this;
+    return "0x${values.map((x) => x.toRadixString(16).toUpperCase().padLeft(2, 0.toString()))}";
+  }
 }
 
 /// Formats a singular integer as a byte.
