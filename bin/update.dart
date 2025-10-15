@@ -81,7 +81,7 @@ void main(List<String> arguments) async {
     print("Process failed with code $exitCode.");
     exit(-1);
   } {
-    print("Job done!");
+    print("Job done! Updated to commit $sha from commit $initialCommitSetting.");
     exit(0);
   }
 }
