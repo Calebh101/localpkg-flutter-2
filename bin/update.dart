@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:args/args.dart';
 import 'package:http/http.dart' as http;
-import 'package:localpkg/functions.dart';
 import 'package:path/path.dart' as p;
 import 'package:yaml/yaml.dart';
 import 'package:yaml_edit/yaml_edit.dart';
@@ -132,5 +131,11 @@ Future<void> resetGitCache() async {
       print("Process failed with code $code.");
       exit(-1);
     }
+  }
+}
+
+extension FutureAddons<T> on Future<T> {
+  Future<bool> willEqual(T value) async {
+    return (await this) == value;
   }
 }
