@@ -411,7 +411,7 @@ extension ByteFormatter on List<int> {
   /// Format the inputted list of bytes as a singular hex string.
   String formatHex() {
     List<int> values = this;
-    return "0x${values.map((x) => x.toRadixString(16).toUpperCase().padLeft(2, 0.toString()))}";
+    return "0x${values.map((x) => x.toRadixString(16).toUpperCase().padLeft(2, 0.toString())).join("")}";
   }
 }
 
