@@ -3,30 +3,55 @@ import 'dart:typed_data';
 
 /// Manages versions and version parsing.
 class Version implements Comparable<Version> {
-  /// `a` in `a.b.c`
+  /// `a` in `a.b.c`.
   final int major;
 
-  /// `b` in `a.b.c`
+  /// `b` in `a.b.c`.
   final int intermediate;
 
-  /// `c` in `a.b.c`
+  /// `c` in `a.b.c`.
   final int minor;
 
-  /// Letter identifier.
+  /// Letter identifier (`A` in `1.0.0A`), in range 0-25 inclusive.
   final int patch;
 
-  /// Optional revision.
+  /// Optional revision (`1` in `1.0.0A-R1`).
   final int release;
 
-  /// [major], [intermediate], and [minor] are required. [letter] and [release] have defaults.
-  Version(this.major, this.intermediate, this.minor, [String letter = "A", this.release = 0]) : patch = letter.codeUnitAt(0), assert(release >= 0, "Release cannot be negative.");
-  Version._(this.major, this.intermediate, this.minor, this.patch, this.release);
+  // If this version represents a beta version.
+  final bool _isBeta;
 
-  /// Returns the raw version string. [release] is only included if it is non-zero.
-  @override
-  String toString() {
-    final core = '$major.$intermediate.$minor${String.fromCharCode(patch)}';
-    return release > 0 ? '$core-R$release' : core;
+  /// [major], [intermediate], and [minor] are required. [letter] and [release] have defaults.
+  /// 
+  /// [isBeta] signifies if the current release is beta or not. If this is not provided, then [isBeta] will automatically be true if [major] is less than 1.
+  Version(this.major, this.intermediate, this.minor, [String letter = "A", this.release = 0]) : patch = _letterToPatch(letter), _isBeta = _doesQualifyForBeta(major, intermediate, minor, _letterToPatch(letter), release), assert(release >= 0, "Release cannot be negative.");
+
+  /// All five parameters are required integers.
+  Version.raw(this.major, this.intermediate, this.minor, this.patch, this.release) : _isBeta = _doesQualifyForBeta(major, intermediate, minor, patch, release);
+
+  /// Returns a [Version] from the provided `Map<String, dynamic>`.
+  /// 
+  /// This will throw an [ArgumentError] if one of the required properties was not present.
+  static Version fromJson(Map<String, dynamic> input) {
+    for ((String name, Type type) property in [
+      ("major", int),
+      ("intermediate", int),
+      ("minor", int),
+      ("patch", int),
+      ("release", int),
+    ]) {
+      if (input[property.$1].runtimeType != property.$2) {
+        throw ArgumentError("Property '${property.$1}' was invalid type ${input[property.$1].runtimeType}, expected ${property.$2}.", property.$1);
+      }
+    }
+
+    int major = input["major"];
+    int intermediate = input["intermediate"];
+    int minor = input["minor"];
+    int patch = input["patch"];
+    int release = input["release"];
+
+    return Version.raw(major, intermediate, minor, patch, release);
   }
 
   @override
@@ -40,6 +65,11 @@ class Version implements Comparable<Version> {
 
   @override
   int get hashCode => major.hashCode ^ intermediate.hashCode ^ minor.hashCode ^ patch.hashCode ^ release.hashCode;
+
+  /// Returns true if this [Version] object signifies a beta version.
+  bool get isBeta => _isBeta;
+
+  String get _patchToLetter => String.fromCharCode(patch + 'A'.codeUnitAt(0));
 
   @override
   bool operator ==(Object other) {
@@ -64,6 +94,25 @@ class Version implements Comparable<Version> {
 
   /// This [Version] is lesser than or equal to the other [Version].
   bool operator <=(Version other) => compareTo(other) <= 0;
+
+  /// Returns the raw version string. [release] is only included if it is non-zero.
+  @override
+  String toString() {
+    final core = '$major.$intermediate.$minor$_patchToLetter';
+    return release > 0 ? '$core-R$release' : core;
+  }
+
+  /// Convert this [Version] object to a `Map<String, Object>`.
+  Map<String, Object> toJson() {
+    return {
+      "raw": toString(),
+      "major": major,
+      "intermediate": intermediate,
+      "minor": minor,
+      "patch": patch,
+      "release": release,
+    };
+  }
 
   /// Turn this [Version] object into a small [Uint8List].
   /// 
@@ -118,7 +167,17 @@ class Version implements Comparable<Version> {
     int d = data.getInt16(6, Endian.little);
     int e = data.getInt16(8, Endian.little);
 
-    return Version._(a, b, c, d, e);
+    return Version.raw(a, b, c, d, e);
+  }
+
+  static bool _doesQualifyForBeta(int major, int intermediate, int minor, int patch, int release) {
+    return major < 1 || release != 0;
+  }
+
+  static int _letterToPatch(String letter) {
+    int result = letter.toUpperCase().codeUnitAt(0) - 'A'.codeUnitAt(0);
+    if (result < 0 || result > 25) throw ArgumentError("Invalid letter for patch: $letter");
+    return result;
   }
 }
 
