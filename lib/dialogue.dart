@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:localpkg/functions.dart';
+import 'package:localpkg_flutter/functions.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// A way to show "snack bars", or little popups on screen.

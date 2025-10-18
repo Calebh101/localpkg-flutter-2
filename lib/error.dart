@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:localpkg/dialogue.dart';
+import 'package:localpkg_flutter/dialogue.dart';
 import 'package:readmore/readmore.dart';
 
 class ManualError extends Error {

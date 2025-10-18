@@ -1,7 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
-export 'package:localpkg/theme.dart' show GradientColor, GradientText;
+export 'package:localpkg_flutter/theme.dart' show GradientColor, GradientText;
 
 /// An Android-like box or button.
 class Setting extends StatelessWidget {

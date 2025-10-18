@@ -4,14 +4,21 @@ This is like my other project, `localpkg-flutter`, which had some issues; so I'm
 
 ## How to import
 
+You will want to import both localpkg packages.
+
 In your `pubspec.yaml`:
 
 ```yaml
 dependencies:
     localpkg:
         git:
+            url: https://github.com/Calebh101/localpkg-dart.git
+            ref: main
+
+    localpkg_flutter:
+        git:
             url: https://github.com/Calebh101/localpkg-flutter-2.git
-            ref: main # 'main' for latest commit, 'dev' for latest development commit (may not always be updated), or a specific commit hash for a specific commit
+            ref: main
 ```
 
 ## How to use

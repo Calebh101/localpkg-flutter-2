@@ -3,27 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-/// Mode used to format time in [TimeFormatter].
-enum FormatTimeMode {
-  /// `hh:mm:ss`
-  hhmmss,
-
-  /// `hh:mm`
-  hhmm,
-
-  /// `mm:ss`
-  mmss,
-}
-
-/// Mode used to format duration in [TimeFormatter].
-enum FormatDurationMode {
-  /// Hour will always be present.
-  hourRequired,
-
-  /// Hour might not be present.
-  hourOptional,
-}
-
 /// Determines what's used to decide the size factor.
 enum SizeFactorMode {
   /// Use the width.
@@ -62,29 +41,6 @@ class UrlLauncher {
     } catch (e) {
       throw Exception("Could not launch $url: $e");
     }
-  }
-}
-
-/// Manages capitalizations.
-extension CaseManager on String {
-  /// Capitalizes the first character of the string.
-  String toSentenceCase() {
-    if (isEmpty) return this;
-    return [this[0].toUpperCase(), substring(1)].join("");
-  }
-
-  /// Capitalizes the first letter of every word.
-  String toTitleCase() {
-    return capitalizeByDelim(this, " ");
-  }
-
-  /// Capitalizes the first letter of every word, based on a delimiter ([delim]).
-  static String capitalizeByDelim(String input, Pattern delim) {
-    if (input.isEmpty) return input;
-
-    return input.split(delim).map((x) => x.trim()).map((word) => word.isNotEmpty
-      ? '${word[0].toUpperCase()}${word.substring(1).toLowerCase()}'
-      : word).join(' ');
   }
 }
 
