@@ -1,5 +1,7 @@
 library;
 
+export 'package:localpkg/localpkg.dart';
+
 export 'package:localpkg_flutter/dialogue.dart';
 export 'package:localpkg_flutter/error.dart';
 export 'package:localpkg_flutter/functions.dart';
