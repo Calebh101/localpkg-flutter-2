@@ -7,12 +7,20 @@ import 'package:path/path.dart' as p;
 import 'package:yaml/yaml.dart';
 import 'package:yaml_edit/yaml_edit.dart';
 
+const String repo = "localpkg-flutter-2";
+const String package = "localpkg";
+
+void _debug(Object? input) {
+  // ignore: avoid_print
+  print("Updater: $input");
+}
+
 void main(List<String> arguments) async {
-  print("Starting update script...");
+  _debug("Starting update script...");
 
   ArgParser parser = ArgParser()
     ..addOption("directory", abbr: "d", help: "Working directory of Flutter project.", defaultsTo: Directory.current.path)
-    ..addOption("commit", abbr: "c", help: "Commit to use for localpkg.")
+    ..addOption("commit", abbr: "c", help: "Commit to use for $repo.")
     ..addFlag("help", abbr: "h", help: "Show help message.");
 
   String usage = "Usage:\n\n${parser.usage}";
@@ -21,68 +29,68 @@ void main(List<String> arguments) async {
   File pubspec = File(p.joinAll([directory.path, "pubspec.yaml"]));
 
   if (args["help"]) {
-    print(usage);
+    _debug(usage);
     exit(0);
   }
 
   if (await directory.exists().willEqual(false)) {
-    print("Directory ${directory.path} does not exist.");
+    _debug("Directory ${directory.path} does not exist.");
     exit(1);
   }
 
   if (await pubspec.exists().willEqual(false)) {
-    print("File ${pubspec.path} does not exist.");
+    _debug("File ${pubspec.path} does not exist.");
     exit(1);
   }
 
   YamlEditor editor = YamlEditor(await pubspec.readAsString());
   var loaded = editor.parseAt([]);
   var data = yamlToMap(loaded);
-  Map<String, dynamic>? localpkg = data["dependencies"]?["localpkg"];
+  Map<String, dynamic>? localpkg = data["dependencies"]?[package];
 
   if (localpkg == null) {
-    print("Data for localpkg does not exist.");
+    _debug("Data for localpkg does not exist.");
     exit(1);
   }
 
   String? initialCommitSetting = localpkg["git"]?["ref"];
   if (initialCommitSetting == "main") initialCommitSetting = null;
 
-  print("Fetching latest commit...");
-  http.Response response = await http.get(Uri.parse("https://api.github.com/repos/Calebh101/localpkg-flutter-2/commits/${args["commit"] ?? "main"}"));
+  _debug("Fetching latest commit...");
+  http.Response response = await http.get(Uri.parse("https://api.github.com/repos/Calebh101/$repo/commits/${args["commit"] ?? "main"}"));
 
   if (response.statusCode < 200 || response.statusCode >= 300) {
-    print("Received bad request for API call: code ${response.statusCode}.");
-    print(response.body);
+    _debug("Received bad request for API call: code ${response.statusCode}.");
+    _debug(response.body);
     exit(-1);
   }
 
   Map body = jsonDecode(response.body);
   String sha = body["sha"];
   String message = body["commit"]?["message"] ?? "Unknown";
-  print("Found commit ID of $sha: $message");
+  _debug("Found commit ID of $sha: $message");
 
   if (sha == initialCommitSetting) {
-    print("Package localpkg is up to date.");
+    _debug("Package $package is up to date.");
     exit(0);
   }
 
-  print("Updating data...");
-  editor.update(["dependencies", "localpkg", "git", "ref"], sha);
+  _debug("Updating data...");
+  editor.update(["dependencies", package, "git", "ref"], sha);
   await pubspec.writeAsString(editor.toString());
   await resetGitCache(sha);
 
-  print("Updating packages...");
+  _debug("Updating packages...");
   var process = await Process.start("flutter", ["pub", "get"], runInShell: true, workingDirectory: directory.path);
   process.stdout.transform(utf8.decoder).listen(stdout.write);
   process.stderr.transform(utf8.decoder).listen(stderr.write);
   int exitCode = await process.exitCode;
 
   if (exitCode != 0) {
-    print("Process failed with code $exitCode.");
+    _debug("Process failed with code $exitCode.");
     exit(-1);
   } {
-    print("Job done! Updated to commit $sha ($message) from commit $initialCommitSetting.");
+    _debug("Job done! Updated $repo to commit $sha ($message) from commit $initialCommitSetting.");
     exit(0);
   }
 }
@@ -109,7 +117,7 @@ Future<void> resetGitCache(String sha) async {
   Directory? cached;
 
   for (var file in files) {
-    if (file is Directory && file.path.contains("localpkg-flutter-2")) {
+    if (file is Directory && file.path.contains(repo)) {
       cached = file;
       break;
     }

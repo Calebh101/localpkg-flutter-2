@@ -142,7 +142,7 @@ class ConfirmationDialogue {
   /// Show a URL confirmation.
   static Future<bool> showUrlConfirmation(BuildContext context, Uri url) async {
     if ((await show(context: context, title: "Open URL?", description: "Do you want to open $url in your default browser or app?")) ?? false) {
-      UrlManager.openUrl(url: url);
+      UrlLauncher.openUrl(url: url);
       return true;
     } else {
       return false;
