@@ -8,7 +8,7 @@ import 'package:yaml/yaml.dart';
 import 'package:yaml_edit/yaml_edit.dart';
 
 const String repo = "localpkg-flutter-2";
-const String package = "localpkg";
+const String package = "localpkg_flutter";
 
 void _debug(Object? input) {
   // ignore: avoid_print

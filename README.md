@@ -19,7 +19,7 @@ dependencies:
 For using the global analysis template, add this to your `analysis_options.yaml`:
 
 ```yaml
-include: package:localpkg/lints/default.yaml
+include: package:localpkg_flutter/lints/default.yaml
 ```
 
 There are also some scripts that can be used with `dart run <script>`:
