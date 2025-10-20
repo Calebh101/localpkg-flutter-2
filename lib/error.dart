@@ -3,22 +3,14 @@ import 'package:flutter/services.dart';
 import 'package:localpkg_flutter/dialogue.dart';
 import 'package:readmore/readmore.dart';
 
-class ManualError extends Error {
-  final String message;
-
-  ManualError(
-    this.message,
-  );
-
-  @override
-  String toString() {
-    return 'ManualError: $message';
-  }
-}
-
+/// A specific [MaterialApp] that is run when your app has an unrecoverable error.
 class CrashPageApp extends StatelessWidget {
+  /// The content of this [MaterialApp].
   final CrashPage child;
 
+  /// A specific [MaterialApp] that is run when your app has an unrecoverable error.
+  ///
+  /// [child] is required.
   const CrashPageApp({
     super.key,
     required this.child,
@@ -34,30 +26,53 @@ class CrashPageApp extends StatelessWidget {
     );
   }
 
+  /// A quick way to run a new [CrashPageApp].
   static void run({required CrashPage child}) {
     Widget app = CrashPageApp(child: child);
     runApp(app);
   }
 }
 
+/// A class defining a specific button found on the [CrashPage].
 class CrashPageButton {
+  /// The text shown.
   final String text;
-  final void Function(BuildContext context, String? message, String? description, String? code, StackTrace? trace) action;
+
+  /// What happens when you run it.
+  final void Function(BuildContext context, String? message, String? description, Object? code, StackTrace? trace) action;
+
+  /// A class defining a specific button found on the [CrashPage].
+  ///
+  /// [text] and [action] are required.
   CrashPageButton(this.text, {required this.action});
 
+  /// A built-in button for copying an error.
   static CrashPageButton copy = CrashPageButton("Copy", action: (context, message, description, code, trace) {
     Clipboard.setData(ClipboardData(text: "Message: $message\nCode: $code\n\nContent:\n$description"));
     SnackBarManager.show(context, "Copied to clipboard!");
   });
 }
 
+/// A [StatefulWidget] for telling the user that something went very wrong.
 class CrashPage extends StatefulWidget {
+  /// A short message to tell the user what wrong.
   final String? message;
+
+  /// Use this to actually describe more info about what went wrong.
   final String? description;
-  final String? code;
+
+  /// The error code.
+  final Object? code;
+
+  /// The optional stack trace, if you want to provide this information.
   final StackTrace? trace;
+
+  /// The buttons shown on the page, that the user can interact with.
   final List<CrashPageButton> buttons;
 
+  /// A [StatefulWidget] for telling the user that something went very wrong.
+  ///
+  /// No parameter is required, although a [message] is recommended.
   const CrashPage({
     super.key,
     this.message,

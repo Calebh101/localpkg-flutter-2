@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 
 /// Type used for [ThemeManager.getColorForType].
 enum ColorType {
