@@ -8,17 +8,19 @@ enum ColorType {
 
   /// Get the primary color of the current [BuildContext].
   primary,
-  
+
   /// Get the secondary color of the current [BuildContext].
   secondary,
 }
 
 /// Manages themes and theme-related subjects.
 class ThemeManager {
+  ThemeManager._();
+
   /// Gets the current color corresponding to the inputted [type].
-  /// 
+  ///
   /// For example, if you input [ColorType.brightness], then the color returned will correspond to the current brightness. So if the current brightness is [Brightness.light], then [Colors.black] will be returned.
-  /// 
+  ///
   /// If you input [ColorType.primary] or [ColorType.secondary], then the primary/secondary color corresponding to the current [BuildContext] will be returned.
   static Color getColorForType({required BuildContext context, required ColorType type, Brightness? brightness}) {
     switch (type) {
