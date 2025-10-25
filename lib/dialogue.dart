@@ -23,10 +23,16 @@ class SnackBarManager {
       ),
     );
   }
+
+  /// Clear all current snack bars.
+  static void clear(BuildContext context) {
+    final manager = ScaffoldMessenger.of(context);
+    return manager.clearSnackBars();
+  }
 }
 
 /// A way to show "snack bars", or little popups on screen.
-/// 
+///
 /// This was added as a quicker method of showing snack bars, rather than using [SnackBarManager].
 extension SnackBarManagerExtension on SnackBar {
   /// Show a simple text-based snack bar.
@@ -81,13 +87,13 @@ class SimpleDialogue {
             TextButton(
               child: const Text('Cancel'),
               onPressed: () {
-                Navigator.of(context).pop(false); 
+                Navigator.of(context).pop(false);
               },
             ),
             TextButton(
               child: const Text('OK'),
               onPressed: () {
-                Navigator.of(context).pop(true); 
+                Navigator.of(context).pop(true);
               },
             ),
           ],
