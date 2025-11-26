@@ -11,7 +11,6 @@ enum SizeFactorMode {
   /// Use the height.
   byHeight,
 
-
   /// Whichever's smaller.
   auto,
 }
@@ -20,7 +19,7 @@ enum SizeFactorMode {
 enum NavigatorMode {
   /// Uses [Navigator.push].
   push,
-  
+
   /// Uses [Navigator.pushReplacement].
   pushReplacement,
 }
@@ -114,5 +113,30 @@ class SimpleNavigator {
         );
         break;
     }
+  }
+}
+
+/// Several addons to the [Text] widget to make your development easier.
+extension TextAddons on Text {
+  /// A helper function to make a new [Text] in a simpler way, since [Text]s can't be modified directly.
+  Text edit({String? data, Key? key, TextStyle? style, StrutStyle? strutStyle, TextAlign? textAlign, TextDirection? textDirection, Locale? locale, bool? softWrap, TextOverflow? overflow, @Deprecated('Use textScaler instead. Use of textScaleFactor was deprecated in preparation for the upcoming nonlinear text scaling support. This feature was deprecated after v3.12.0-2.0.pre.') double? textScaleFactor, TextScaler? textScaler, int? maxLines, String? semanticsLabel, String? semanticsIdentifier, TextWidthBasis? textWidthBasis, TextHeightBehavior? textHeightBehavior, Color? selectionColor}) {
+    return Text(data ?? this.data ?? '', key: key ?? this.key, style: style ?? this.style, strutStyle: strutStyle ?? this.strutStyle, textAlign: textAlign ?? this.textAlign, textDirection: textDirection ?? this.textDirection, locale: locale ?? this.locale, softWrap: softWrap ?? this.softWrap, overflow: overflow ?? this.overflow, textScaleFactor: textScaleFactor ?? this.textScaleFactor, textScaler: textScaler ?? this.textScaler, maxLines: maxLines ?? this.maxLines, semanticsLabel: semanticsLabel ?? this.semanticsLabel, semanticsIdentifier: semanticsIdentifier ?? this.semanticsIdentifier, textWidthBasis: textWidthBasis ?? this.textWidthBasis, textHeightBehavior: textHeightBehavior ?? this.textHeightBehavior, selectionColor: selectionColor ?? this.selectionColor);
+  }
+
+  /// A helper function to make a new [Text] in a simpler way, since [Text]s can't be modified directly.
+  static Text editText(Text original, {String? data, Key? key, TextStyle? style, StrutStyle? strutStyle, TextAlign? textAlign, TextDirection? textDirection, Locale? locale, bool? softWrap, TextOverflow? overflow, @Deprecated('Use textScaler instead. Use of textScaleFactor was deprecated in preparation for the upcoming nonlinear text scaling support. This feature was deprecated after v3.12.0-2.0.pre.') double? textScaleFactor, TextScaler? textScaler, int? maxLines, String? semanticsLabel, String? semanticsIdentifier, TextWidthBasis? textWidthBasis, TextHeightBehavior? textHeightBehavior, Color? selectionColor}) {
+    return original.edit(data: data, key: key, style: style, strutStyle: strutStyle, textAlign: textAlign, textDirection: textDirection, locale: locale, softWrap: softWrap, overflow: overflow, textScaleFactor: textScaleFactor, textScaler: textScaler, maxLines: maxLines, semanticsLabel: semanticsLabel, semanticsIdentifier: semanticsIdentifier, textWidthBasis: textWidthBasis, textHeightBehavior: textHeightBehavior, selectionColor: selectionColor);
+  }
+
+  /// A helper function to make a new [TextStyle] in a simpler way, since [TextStyle]s can't be modified directly.
+  ///
+  /// Note: `package` can't be accessed from a [TextStyle], so if you manually set a `package` on the original, you'll need to pass it in to [originalPackage].
+  static TextStyle editStyle(TextStyle? original, {bool? inherit, Color? color, Color? backgroundColor, double? fontSize, FontWeight? fontWeight, FontStyle? fontStyle, double? letterSpacing, double? wordSpacing, TextBaseline? textBaseline, double? height, TextLeadingDistribution? leadingDistribution, Locale? locale, Paint? foreground, Paint? background, List<Shadow>? shadows, List<FontFeature>? fontFeatures, List<FontVariation>? fontVariations, TextDecoration? decoration, Color? decorationColor, TextDecorationStyle? decorationStyle, double? decorationThickness, String? debugLabel, String? fontFamily, List<String>? fontFamilyFallback, String? package, TextOverflow? overflow, String? originalPackage}) {
+    return TextStyle(inherit: inherit ?? original?.inherit ?? true, color: color ?? original?.color, backgroundColor: backgroundColor ?? original?.backgroundColor, fontSize: fontSize ?? original?.fontSize, fontWeight: fontWeight ?? original?.fontWeight, fontStyle: fontStyle ?? original?.fontStyle, letterSpacing: letterSpacing ?? original?.letterSpacing, wordSpacing: wordSpacing ?? original?.wordSpacing, textBaseline: textBaseline ?? original?.textBaseline, height: height ?? original?.height, leadingDistribution: leadingDistribution ?? original?.leadingDistribution, locale: locale ?? original?.locale, foreground: foreground ?? original?.foreground, background: background ?? original?.background, shadows: shadows ?? original?.shadows, fontFeatures: fontFeatures ?? original?.fontFeatures, fontVariations: fontVariations ?? original?.fontVariations, decoration: decoration ?? original?.decoration, decorationColor: decorationColor ?? original?.decorationColor, decorationStyle: decorationStyle ?? original?.decorationStyle, decorationThickness: decorationThickness ?? original?.decorationThickness, debugLabel: debugLabel ?? original?.debugLabel, fontFamily: fontFamily ?? original?.fontFamily, fontFamilyFallback: fontFamilyFallback ?? original?.fontFamilyFallback, package: package ?? originalPackage, overflow: overflow ?? original?.overflow);
+  }
+
+  /// Change the [Text]'s [TextStyle]'s [fontSize] easily.
+  Text fontSize(num fontSize) {
+    return edit(style: editStyle(style, fontSize: fontSize.toDouble()));
   }
 }
