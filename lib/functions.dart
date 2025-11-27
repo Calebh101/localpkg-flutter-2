@@ -140,3 +140,9 @@ extension TextAddons on Text {
     return edit(style: editStyle(style, fontSize: fontSize.toDouble()));
   }
 }
+
+/// Several addons for the [BuildContext] object.
+extension ContextAddons on BuildContext {
+  /// The current [Navigator.of] of this [BuildContext].
+  NavigatorState get navigator => Navigator.of(this);
+}
