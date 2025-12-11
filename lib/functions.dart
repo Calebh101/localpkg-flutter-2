@@ -149,3 +149,16 @@ extension ContextAddons on BuildContext {
   /// The current [MediaQuery.of]'s [size] of this [BuildContext].
   Size get screenSize => MediaQuery.of(this).size;
 }
+
+/// Several addons for the [DateTime] object.
+extension DateTimeAddons on DateTime {
+  /// The number of seconds since
+  /// the "Unix epoch" 1970-01-01T00:00:00Z (UTC).
+  ///
+  /// This value is independent of the time zone.
+  ///
+  /// This value is at most
+  /// 8,640,000,000,000s (100,000,000 days) from the Unix epoch.
+  /// In other words: `secondsSinceEpoch.abs() <= 8640000000000`.
+  int get secondsSinceEpoch => (millisecondsSinceEpoch / 1000).toInt();
+}
