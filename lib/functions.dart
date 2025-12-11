@@ -145,4 +145,7 @@ extension TextAddons on Text {
 extension ContextAddons on BuildContext {
   /// The current [Navigator.of] of this [BuildContext].
   NavigatorState get navigator => Navigator.of(this);
+
+  /// The current [MediaQuery.of]'s [size] of this [BuildContext].
+  Size get screenSize => MediaQuery.of(this).size;
 }
