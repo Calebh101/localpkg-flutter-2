@@ -143,7 +143,7 @@ extension TextAddons on Text {
 
   /// Change the [Text]'s [TextStyle]'s [fontSize] easily.
   Text fontSize(num fontSize) {
-    return edit(style: editStyle(style, fontSize: fontSize.toDouble()));
+    return edit(style: editTextStyle(style, fontSize: fontSize.toDouble()));
   }
 }
 
