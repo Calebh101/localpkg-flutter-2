@@ -259,23 +259,3 @@ class ScrollWidget extends StatelessWidget {
     return result;
   }
 }
-
-/// Show an icon in a "disabled" state.
-extension DisabledIcons on Icon {
-  /// Show an icon in a "disabled" state by putting a line through it.
-  Widget disabled() {
-    // TODO
-    return this;
-  }
-
-  /// Show an icon in a "disabled" state by putting a line through it.
-  ///
-  /// This will only apply if [condition] is true.
-  Widget disabledIf(bool Function() condition) {
-    if (condition.call()) {
-      return disabled();
-    } else {
-      return this;
-    }
-  }
-}

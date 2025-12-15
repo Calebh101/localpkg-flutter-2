@@ -131,8 +131,14 @@ extension TextAddons on Text {
   /// A helper function to make a new [TextStyle] in a simpler way, since [TextStyle]s can't be modified directly.
   ///
   /// Note: `package` can't be accessed from a [TextStyle], so if you manually set a `package` on the original, you'll need to pass it in to [originalPackage].
-  static TextStyle editStyle(TextStyle? original, {bool? inherit, Color? color, Color? backgroundColor, double? fontSize, FontWeight? fontWeight, FontStyle? fontStyle, double? letterSpacing, double? wordSpacing, TextBaseline? textBaseline, double? height, TextLeadingDistribution? leadingDistribution, Locale? locale, Paint? foreground, Paint? background, List<Shadow>? shadows, List<FontFeature>? fontFeatures, List<FontVariation>? fontVariations, TextDecoration? decoration, Color? decorationColor, TextDecorationStyle? decorationStyle, double? decorationThickness, String? debugLabel, String? fontFamily, List<String>? fontFamilyFallback, String? package, TextOverflow? overflow, String? originalPackage}) {
+  static TextStyle editTextStyle(TextStyle? original, {bool? inherit, Color? color, Color? backgroundColor, double? fontSize, FontWeight? fontWeight, FontStyle? fontStyle, double? letterSpacing, double? wordSpacing, TextBaseline? textBaseline, double? height, TextLeadingDistribution? leadingDistribution, Locale? locale, Paint? foreground, Paint? background, List<Shadow>? shadows, List<FontFeature>? fontFeatures, List<FontVariation>? fontVariations, TextDecoration? decoration, Color? decorationColor, TextDecorationStyle? decorationStyle, double? decorationThickness, String? debugLabel, String? fontFamily, List<String>? fontFamilyFallback, String? package, TextOverflow? overflow, String? originalPackage}) {
     return TextStyle(inherit: inherit ?? original?.inherit ?? true, color: color ?? original?.color, backgroundColor: backgroundColor ?? original?.backgroundColor, fontSize: fontSize ?? original?.fontSize, fontWeight: fontWeight ?? original?.fontWeight, fontStyle: fontStyle ?? original?.fontStyle, letterSpacing: letterSpacing ?? original?.letterSpacing, wordSpacing: wordSpacing ?? original?.wordSpacing, textBaseline: textBaseline ?? original?.textBaseline, height: height ?? original?.height, leadingDistribution: leadingDistribution ?? original?.leadingDistribution, locale: locale ?? original?.locale, foreground: foreground ?? original?.foreground, background: background ?? original?.background, shadows: shadows ?? original?.shadows, fontFeatures: fontFeatures ?? original?.fontFeatures, fontVariations: fontVariations ?? original?.fontVariations, decoration: decoration ?? original?.decoration, decorationColor: decorationColor ?? original?.decorationColor, decorationStyle: decorationStyle ?? original?.decorationStyle, decorationThickness: decorationThickness ?? original?.decorationThickness, debugLabel: debugLabel ?? original?.debugLabel, fontFamily: fontFamily ?? original?.fontFamily, fontFamilyFallback: fontFamilyFallback ?? original?.fontFamilyFallback, package: package ?? originalPackage, overflow: overflow ?? original?.overflow);
+  }
+
+  /// Edit the style of a [Text] inline.
+  Text editStyle({bool? inherit, Color? color, Color? backgroundColor, double? fontSize, FontWeight? fontWeight, FontStyle? fontStyle, double? letterSpacing, double? wordSpacing, TextBaseline? textBaseline, double? height, TextLeadingDistribution? leadingDistribution, Locale? locale, Paint? foreground, Paint? background, List<Shadow>? shadows, List<FontFeature>? fontFeatures, List<FontVariation>? fontVariations, TextDecoration? decoration, Color? decorationColor, TextDecorationStyle? decorationStyle, double? decorationThickness, String? debugLabel, String? fontFamily, List<String>? fontFamilyFallback, String? package, TextOverflow? overflow, String? originalPackage}) {
+    final original = style;
+    return edit(style: editTextStyle(style, inherit: inherit ?? original?.inherit ?? true, color: color ?? original?.color, backgroundColor: backgroundColor ?? original?.backgroundColor, fontSize: fontSize ?? original?.fontSize, fontWeight: fontWeight ?? original?.fontWeight, fontStyle: fontStyle ?? original?.fontStyle, letterSpacing: letterSpacing ?? original?.letterSpacing, wordSpacing: wordSpacing ?? original?.wordSpacing, textBaseline: textBaseline ?? original?.textBaseline, height: height ?? original?.height, leadingDistribution: leadingDistribution ?? original?.leadingDistribution, locale: locale ?? original?.locale, foreground: foreground ?? original?.foreground, background: background ?? original?.background, shadows: shadows ?? original?.shadows, fontFeatures: fontFeatures ?? original?.fontFeatures, fontVariations: fontVariations ?? original?.fontVariations, decoration: decoration ?? original?.decoration, decorationColor: decorationColor ?? original?.decorationColor, decorationStyle: decorationStyle ?? original?.decorationStyle, decorationThickness: decorationThickness ?? original?.decorationThickness, debugLabel: debugLabel ?? original?.debugLabel, fontFamily: fontFamily ?? original?.fontFamily, fontFamilyFallback: fontFamilyFallback ?? original?.fontFamilyFallback, package: package ?? originalPackage, overflow: overflow ?? original?.overflow));
   }
 
   /// Change the [Text]'s [TextStyle]'s [fontSize] easily.
@@ -148,6 +154,20 @@ extension ContextAddons on BuildContext {
 
   /// The current [MediaQuery.of]'s [size] of this [BuildContext].
   Size get screenSize => MediaQuery.of(this).size;
+
+  /// Only returns this [BuildContext] if [mounted] is true.
+  /// Otherwise, returns `null`.
+  BuildContext? get ifMountedOrNull => mounted ? this : null;
+
+  /// Only executes the callback if [mounted] is true.
+  /// Otherwise, returns `null`.
+  T? ifMounted<T>(T Function(BuildContext context) callback) {
+    if (mounted) {
+      return callback.call(this);
+    } else {
+      return null;
+    }
+  }
 }
 
 /// Several addons for the [DateTime] object.
