@@ -8,10 +8,10 @@ In your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-    localpkg_flutter:
-        git:
-            url: https://github.com/Calebh101/localpkg-flutter-2.git
-            ref: main
+  localpkg_flutter:
+    git:
+      url: https://github.com/Calebh101/localpkg-flutter-2.git
+      ref: main
 ```
 
 ## How to use
