@@ -119,6 +119,9 @@ class SimpleNavigator {
 
 /// Several addons to the [Text] widget to make your development easier.
 extension TextAddons on Text {
+  /// True this text's data is empty and there's no [TextSpan].
+  bool get isEmpty => (data?.isEmpty ?? true) && textSpan == null;
+
   /// A helper function to make a new [Text] in a simpler way, since [Text]s can't be modified directly.
   Text edit({String? data, Key? key, TextStyle? style, StrutStyle? strutStyle, TextAlign? textAlign, TextDirection? textDirection, Locale? locale, bool? softWrap, TextOverflow? overflow, @Deprecated('Use textScaler instead. Use of textScaleFactor was deprecated in preparation for the upcoming nonlinear text scaling support. This feature was deprecated after v3.12.0-2.0.pre.') double? textScaleFactor, TextScaler? textScaler, int? maxLines, String? semanticsLabel, String? semanticsIdentifier, TextWidthBasis? textWidthBasis, TextHeightBehavior? textHeightBehavior, Color? selectionColor}) {
     return Text(data ?? this.data ?? '', key: key ?? this.key, style: style ?? this.style, strutStyle: strutStyle ?? this.strutStyle, textAlign: textAlign ?? this.textAlign, textDirection: textDirection ?? this.textDirection, locale: locale ?? this.locale, softWrap: softWrap ?? this.softWrap, overflow: overflow ?? this.overflow, textScaleFactor: textScaleFactor ?? this.textScaleFactor, textScaler: textScaler ?? this.textScaler, maxLines: maxLines ?? this.maxLines, semanticsLabel: semanticsLabel ?? this.semanticsLabel, semanticsIdentifier: semanticsIdentifier ?? this.semanticsIdentifier, textWidthBasis: textWidthBasis ?? this.textWidthBasis, textHeightBehavior: textHeightBehavior ?? this.textHeightBehavior, selectionColor: selectionColor ?? this.selectionColor);
@@ -142,9 +145,46 @@ extension TextAddons on Text {
     return edit(style: editTextStyle(style, inherit: inherit ?? original?.inherit ?? true, color: color ?? original?.color, backgroundColor: backgroundColor ?? original?.backgroundColor, fontSize: fontSize ?? original?.fontSize, fontWeight: fontWeight ?? original?.fontWeight, fontStyle: fontStyle ?? original?.fontStyle, letterSpacing: letterSpacing ?? original?.letterSpacing, wordSpacing: wordSpacing ?? original?.wordSpacing, textBaseline: textBaseline ?? original?.textBaseline, height: height ?? original?.height, leadingDistribution: leadingDistribution ?? original?.leadingDistribution, locale: locale ?? original?.locale, foreground: foreground ?? original?.foreground, background: background ?? original?.background, shadows: shadows ?? original?.shadows, fontFeatures: fontFeatures ?? original?.fontFeatures, fontVariations: fontVariations ?? original?.fontVariations, decoration: decoration ?? original?.decoration, decorationColor: decorationColor ?? original?.decorationColor, decorationStyle: decorationStyle ?? original?.decorationStyle, decorationThickness: decorationThickness ?? original?.decorationThickness, debugLabel: debugLabel ?? original?.debugLabel, fontFamily: fontFamily ?? original?.fontFamily, fontFamilyFallback: fontFamilyFallback ?? original?.fontFamilyFallback, package: package ?? originalPackage, overflow: overflow ?? original?.overflow));
   }
 
-  /// Change the [Text]'s [TextStyle]'s [fontSize] easily.
+  /// Change the [Text]'s [TextStyle]'s font size easily.
   Text fontSize(num fontSize) {
     return edit(style: editTextStyle(style, fontSize: fontSize.toDouble()));
+  }
+
+  /// Change the [Text]'s [TextStyle]'s text color easily.
+  Text color(Color? color) {
+    return edit(style: TextAddons.editTextStyle(style, color: color));
+  }
+}
+
+/// Several addons to the [SelectableText] widget to make your development easier.
+extension SelectableTextAddons on SelectableText {
+  /// True this text's data is empty and there's no [TextSpan].
+  bool get isEmpty => (data?.isEmpty ?? true) && textSpan == null;
+
+  /// A helper function to make a new [Text] in a simpler way, since [Text]s can't be modified directly.
+  SelectableText edit({String? data, Key? key, TextStyle? style, StrutStyle? strutStyle, TextAlign? textAlign, TextDirection? textDirection, @Deprecated('Use textScaler instead. Use of textScaleFactor was deprecated in preparation for the upcoming nonlinear text scaling support. This feature was deprecated after v3.12.0-2.0.pre.') double? textScaleFactor, TextScaler? textScaler, int? maxLines, String? semanticsLabel, TextWidthBasis? textWidthBasis, TextHeightBehavior? textHeightBehavior, Color? selectionColor}) {
+    return SelectableText(data ?? this.data ?? '', key: key ?? this.key, style: style ?? this.style, strutStyle: strutStyle ?? this.strutStyle, textAlign: textAlign ?? this.textAlign, textDirection: textDirection ?? this.textDirection, textScaleFactor: textScaleFactor ?? this.textScaleFactor, textScaler: textScaler ?? this.textScaler, maxLines: maxLines ?? this.maxLines, semanticsLabel: semanticsLabel ?? this.semanticsLabel, textWidthBasis: textWidthBasis ?? this.textWidthBasis, textHeightBehavior: textHeightBehavior ?? this.textHeightBehavior, selectionColor: selectionColor ?? this.selectionColor);
+  }
+
+  /// A helper function to make a new [Text] in a simpler way, since [Text]s can't be modified directly.
+  static SelectableText editText(SelectableText original, {String? data, Key? key, TextStyle? style, StrutStyle? strutStyle, TextAlign? textAlign, TextDirection? textDirection, @Deprecated('Use textScaler instead. Use of textScaleFactor was deprecated in preparation for the upcoming nonlinear text scaling support. This feature was deprecated after v3.12.0-2.0.pre.') double? textScaleFactor, TextScaler? textScaler, int? maxLines, String? semanticsLabel, TextWidthBasis? textWidthBasis, TextHeightBehavior? textHeightBehavior, Color? selectionColor}) {
+    return original.edit(data: data, key: key, style: style, strutStyle: strutStyle, textAlign: textAlign, textDirection: textDirection, textScaleFactor: textScaleFactor, textScaler: textScaler, maxLines: maxLines, semanticsLabel: semanticsLabel, textWidthBasis: textWidthBasis, textHeightBehavior: textHeightBehavior, selectionColor: selectionColor);
+  }
+
+  /// Edit the style of a [SelectableText] inline.
+  SelectableText editStyle({bool? inherit, Color? color, Color? backgroundColor, double? fontSize, FontWeight? fontWeight, FontStyle? fontStyle, double? letterSpacing, double? wordSpacing, TextBaseline? textBaseline, double? height, TextLeadingDistribution? leadingDistribution, Locale? locale, Paint? foreground, Paint? background, List<Shadow>? shadows, List<FontFeature>? fontFeatures, List<FontVariation>? fontVariations, TextDecoration? decoration, Color? decorationColor, TextDecorationStyle? decorationStyle, double? decorationThickness, String? debugLabel, String? fontFamily, List<String>? fontFamilyFallback, String? package, TextOverflow? overflow, String? originalPackage}) {
+    final original = style;
+    return edit(style: TextAddons.editTextStyle(style, inherit: inherit ?? original?.inherit ?? true, color: color ?? original?.color, backgroundColor: backgroundColor ?? original?.backgroundColor, fontSize: fontSize ?? original?.fontSize, fontWeight: fontWeight ?? original?.fontWeight, fontStyle: fontStyle ?? original?.fontStyle, letterSpacing: letterSpacing ?? original?.letterSpacing, wordSpacing: wordSpacing ?? original?.wordSpacing, textBaseline: textBaseline ?? original?.textBaseline, height: height ?? original?.height, leadingDistribution: leadingDistribution ?? original?.leadingDistribution, locale: locale ?? original?.locale, foreground: foreground ?? original?.foreground, background: background ?? original?.background, shadows: shadows ?? original?.shadows, fontFeatures: fontFeatures ?? original?.fontFeatures, fontVariations: fontVariations ?? original?.fontVariations, decoration: decoration ?? original?.decoration, decorationColor: decorationColor ?? original?.decorationColor, decorationStyle: decorationStyle ?? original?.decorationStyle, decorationThickness: decorationThickness ?? original?.decorationThickness, debugLabel: debugLabel ?? original?.debugLabel, fontFamily: fontFamily ?? original?.fontFamily, fontFamilyFallback: fontFamilyFallback ?? original?.fontFamilyFallback, package: package ?? originalPackage, overflow: overflow ?? original?.overflow));
+  }
+
+  /// Change the [SelectableText]'s [TextStyle]'s font size easily.
+  SelectableText fontSize(num fontSize) {
+    return edit(style: TextAddons.editTextStyle(style, fontSize: fontSize.toDouble()));
+  }
+
+  /// Change the [SelectableText]'s [TextStyle]'s text color easily.
+  SelectableText color(Color? color) {
+    return edit(style: TextAddons.editTextStyle(style, color: color));
   }
 }
 
@@ -198,4 +238,12 @@ extension NullIfEmptyText on Text {
   ///
   /// This returns null only if there are 0 characters. Spaces count.
   Text? get nullIfEmpty => isEmpty ? null : this;
+}
+
+/// `NullIfEmpty` extension on widget `SelectableText`.
+extension NullIfEmptySelectableText on SelectableText {
+  /// If this text's data is empty and there's no [TextSpan], return null. Otherwise, return the widget.
+  ///
+  /// This returns null only if there are 0 characters. Spaces count.
+  SelectableText? get nullIfEmpty => isEmpty ? null : this;
 }
