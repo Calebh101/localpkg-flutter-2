@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:localpkg_flutter/dialogue.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /// Determines what's used to decide the size factor.
@@ -181,4 +182,9 @@ extension DateTimeAddons on DateTime {
   /// 8,640,000,000,000s (100,000,000 days) from the Unix epoch.
   /// In other words: `secondsSinceEpoch.abs() <= 8640000000000`.
   int get secondsSinceEpoch => (millisecondsSinceEpoch / 1000).toInt();
+}
+
+/// Show a simple text-based snack bar.
+ScaffoldFeatureController<SnackBar, SnackBarClosedReason> showSnackBar(BuildContext context, String content) {
+  return SnackBarManager.show(context, content);
 }
