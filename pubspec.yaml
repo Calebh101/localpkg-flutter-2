@@ -25,7 +25,7 @@ dependencies:
   localpkg:
     git:
       url: https://github.com/Calebh101/localpkg-dart.git
-      ref: ec795337cec0ee5929b9b6faab6cc5f1447e12e3
+      ref: 9a86a282563addf0886ff29a801b6fad58e08744
 
 dev_dependencies:
   flutter_test:
