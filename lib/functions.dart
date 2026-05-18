@@ -280,3 +280,12 @@ extension FormKeyAddons on FormKey {
   /// and return true if there are no errors.
   Set<FormFieldState<Object?>> validateGranularly() => state.validateGranularly();
 }
+
+/// Build Flutter widgets from numbers.
+extension FlutterWidgetsNumber on num {
+  /// A [SizedBox] with a width of this number.
+  SizedBox horiz() => SizedBox(width: toDouble());
+
+  /// A [SizedBox] with a height of this number.
+  SizedBox vert() => SizedBox(height: toDouble());
+}
