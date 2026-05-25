@@ -266,7 +266,7 @@ extension FormKeyAddons on FormKey {
   /// See also:
   ///  * [validateGranularly], which also validates descendant [FormField]s,
   /// but instead returns a [Set] of fields with errors.
-  bool validate() => state.validate();
+  bool? validate() => currentState?.validate();
 
   /// Validates every [FormField] that is a descendant of this [Form], and
   /// returns a [Set] of [FormFieldState] of the invalid field(s) only, if any.
@@ -278,7 +278,7 @@ extension FormKeyAddons on FormKey {
   /// See also:
   ///  * [validate], which also validates descendant [FormField]s,
   /// and return true if there are no errors.
-  Set<FormFieldState<Object?>> validateGranularly() => state.validateGranularly();
+  Set<FormFieldState<Object?>>? validateGranularly() => currentState?.validateGranularly();
 }
 
 /// Build Flutter widgets from numbers.
