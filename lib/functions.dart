@@ -266,7 +266,19 @@ extension FormKeyAddons on FormKey {
   /// See also:
   ///  * [validateGranularly], which also validates descendant [FormField]s,
   /// but instead returns a [Set] of fields with errors.
-  bool? validate() => currentState?.validate();
+  bool validate() => state.validate();
+
+  /// Validates every [FormField] that is a descendant of this [Form], and
+  /// returns true if there are no errors.
+  ///
+  /// The form will rebuild to report the results.
+  ///
+  /// This function will return null if [currentState] is null.
+  ///
+  /// See also:
+  ///  * [validateGranularly], which also validates descendant [FormField]s,
+  /// but instead returns a [Set] of fields with errors.
+  bool? validateOrNull() => currentState?.validate();
 
   /// Validates every [FormField] that is a descendant of this [Form], and
   /// returns a [Set] of [FormFieldState] of the invalid field(s) only, if any.
@@ -278,7 +290,21 @@ extension FormKeyAddons on FormKey {
   /// See also:
   ///  * [validate], which also validates descendant [FormField]s,
   /// and return true if there are no errors.
-  Set<FormFieldState<Object?>>? validateGranularly() => currentState?.validateGranularly();
+  Set<FormFieldState<Object?>> validateGranularly() => state.validateGranularly();
+
+  /// Validates every [FormField] that is a descendant of this [Form], and
+  /// returns a [Set] of [FormFieldState] of the invalid field(s) only, if any.
+  ///
+  /// This method can be useful to highlight field(s) with errors.
+  ///
+  /// The form will rebuild to report the results.
+  ///
+  /// This function will return null if [currentState] is null.
+  ///
+  /// See also:
+  ///  * [validate], which also validates descendant [FormField]s,
+  /// and return true if there are no errors.
+  Set<FormFieldState<Object?>>? validateGranularlyOrNull() => currentState?.validateGranularly();
 }
 
 /// Build Flutter widgets from numbers.
