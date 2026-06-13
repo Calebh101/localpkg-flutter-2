@@ -231,13 +231,20 @@ ScaffoldFeatureController<SnackBar, SnackBarClosedReason> showSnackBar(BuildCont
 
 /// `NullIfEmpty` extension on widget `Text`.
 extension NullIfEmptyText on Text {
-  /// True this text's data is empty and there's no [TextSpan].
+  /// True if this text's data is empty and there's no [TextSpan].
   bool get isEmpty => (data?.isEmpty ?? true) && textSpan == null;
 
   /// If this text's data is empty and there's no [TextSpan], return null. Otherwise, return the widget.
   ///
   /// This returns null only if there are 0 characters. Spaces count.
   Text? get nullIfEmpty => isEmpty ? null : this;
+}
+
+/// `NullIfEmpty` extension on Flutter `BuildContext`.
+extension NullIfEmptyBuildContext on BuildContext {
+  /// Returns this [BuildContext] if this context is currently mounted.
+  /// Otherwise, returns null.
+  BuildContext? get nullIfNotMounted => mounted ? this : null;
 }
 
 /// `NullIfEmpty` extension on widget `SelectableText`.
