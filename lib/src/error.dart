@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:localpkg_flutter/dialogue.dart';
+import 'package:localpkg_flutter/src/dialogue.dart';
 import 'package:readmore/readmore.dart';
 
 /// A specific [MaterialApp] that is run when your app has an unrecoverable error.

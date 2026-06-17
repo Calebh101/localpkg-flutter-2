@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:localpkg_flutter/dialogue.dart';
+import 'package:localpkg_flutter/src/dialogue.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /// Determines what's used to decide the size factor.
