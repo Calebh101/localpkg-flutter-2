@@ -94,10 +94,28 @@ class SizeManager {
   }
 }
 
-/// Manages simple navigation functions.
+/// Navigates to the specified page.
+///
+/// If [mode] is `NavigatorMode.push`, then `Navigator.push` will be called.<br>
+/// If [mode] is `Navigator.pushReplacement`, then Navigator.pushReplacement` will be called.
+Future<T?> navigate<T>({required BuildContext context, required Widget page, NavigatorMode mode = NavigatorMode.push}) {
+  return switch (mode) {
+    NavigatorMode.push => Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => page),
+    ),
+    NavigatorMode.pushReplacement => Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => page),
+    ),
+  };
+}
+
+/// Helper class for static navigation utilities.
 class SimpleNavigator {
   SimpleNavigator._();
 
+  @Deprecated("Use navigate() or extension methods instead.")
   /// Navigates to the specified page.
   static void navigate({required BuildContext context, required Widget page, NavigatorMode mode = NavigatorMode.push}) {
     switch (mode) {
